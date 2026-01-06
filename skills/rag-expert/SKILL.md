@@ -1,7 +1,9 @@
 ---
 name: RAG Expert
-description: Expert in Retrieval-Augmented Generation systems - knowledge bases, chunking strategies, embedding optimization, and production RAG architectures
-version: 1.0.0
+description: Expert in Retrieval-Augmented Generation systems - knowledge bases, chunking strategies, embedding optimization, and production RAG architectures for OCI
+version: 1.1.0
+last_updated: 2026-01-06
+external_version: "OCI GenAI Agents, Cohere Embed v3"
 triggers:
   - RAG
   - retrieval augmented

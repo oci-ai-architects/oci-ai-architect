@@ -37,9 +37,17 @@ oci-ai-architect/
 └── .claude/            # Hooks, commands, settings
 ```
 
+## Recent Changes
+
+| Date | Change | Impact |
+|------|--------|--------|
+| 2026-01-06 | Updated all 6 skills to v1.1.0 | Added last_updated, external_version |
+| 2026-01-06 | Created VERSION-TRACKING.md | Centralized OCI version management |
+| 2026-01-06 | Added /update-knowledge command | Automated knowledge refresh |
+
 ## Related Repositories
 
-- **ai-architect**: Multi-cloud version with AWS, Azure, GCP
+- **ai-architect**: Vendor-neutral, best-of-breed multi-cloud
 - GitHub: frankxai/ai-architect
 
 ## OCI Regions with GenAI
