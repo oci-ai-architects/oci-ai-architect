@@ -1,0 +1,151 @@
+# Workflow: Content Approval Pipeline
+# Automates content review, approval, and publishing
+
+workflow:
+  name: "content-approval-pipeline"
+  version: "1.0.0"
+  description: "Streamlined content approval process with automated checks and human review gates"
+
+  metadata:
+    industry: "creative-marketing"
+    automation_level: "60%"
+    average_duration: "1.5_days"  # Down from 5 days
+
+  triggers:
+    - type: "event"
+      source: "content_management_system"
+      event: "content.submitted"
+
+  inputs:
+    - name: "content_item"
+      type: "object"
+      schema:
+        content_id: "string"
+        type: "string"  # blog, video, infographic, social_post
+        title: "string"
+        body: "string"
+        author: "string"
+        target_publish_date: "string"
+
+  steps:
+    - id: "seo_validation"
+      name: "SEO Requirements Check"
+      agent: "seo-optimizer"
+      action: "validate_seo"
+      inputs:
+        - "${content_item}"
+      outputs:
+        - "seo_score"
+        - "seo_recommendations"
+      pass_threshold: 75
+
+    - id: "brand_guidelines_check"
+      name: "Brand Guidelines Validation"
+      action: "check_brand_compliance"
+      inputs:
+        - content: "${content_item}"
+        - guidelines: "${brand_guidelines}"
+      outputs:
+        - "compliance_status"
+        - "issues"
+
+    - id: "legal_review_required"
+      name: "Check if Legal Review Needed"
+      type: "conditional"
+      condition: "${content_item.type} in ['press_release', 'legal_copy'] OR ${issues.contains('legal_concern')}"
+      outputs:
+        - "needs_legal_review"
+
+    - id: "legal_approval"
+      name: "Legal/Compliance Review"
+      type: "human_approval"
+      condition: "${needs_legal_review}"
+      approver_role: "legal_team"
+      timeout: "48h"
+      priority: "high"
+
+    - id: "creative_review"
+      name: "Creative Director Approval"
+      type: "human_approval"
+      approver_role: "creative_director"
+      inputs:
+        - content: "${content_item}"
+        - seo_score: "${seo_score}"
+        - recommendations: "${seo_recommendations}"
+      timeout: "24h"
+      outputs:
+        - "creative_approval"
+        - "revision_notes"
+      on_rejection:
+        action: "notify_author"
+        next_step: "revision_required"
+
+    - id: "revision_required"
+      name: "Author Revisions"
+      type: "external"
+      condition: "${creative_approval} == 'rejected'"
+      notification:
+        recipient: "${content_item.author}"
+        message: "Revisions requested: ${revision_notes}"
+      next_step: "seo_validation"  # Loop back after revisions
+
+    - id: "schedule_publication"
+      name: "Schedule Content Publication"
+      agent: "content-strategist"
+      action: "schedule_publication"
+      condition: "${creative_approval} == 'approved'"
+      inputs:
+        - content_id: "${content_item.content_id}"
+        - publish_date: "${content_item.target_publish_date}"
+      outputs:
+        - "scheduled_publish_time"
+
+    - id: "create_social_posts"
+      name: "Generate Social Media Promotion"
+      agent: "social-media-manager"
+      action: "create_promotion_posts"
+      inputs:
+        - content: "${content_item}"
+        - publish_time: "${scheduled_publish_time}"
+      outputs:
+        - "social_posts"
+
+    - id: "publish_content"
+      name: "Publish to CMS"
+      mcp_server: "content-management-mcp"
+      action: "publish"
+      inputs:
+        - content_id: "${content_item.content_id}"
+        - publish_time: "${scheduled_publish_time}"
+      outputs:
+        - "published_url"
+
+    - id: "start_tracking"
+      name: "Begin Performance Tracking"
+      agent: "analytics-agent"
+      action: "track_content_performance"
+      inputs:
+        - content_id: "${content_item.content_id}"
+        - url: "${published_url}"
+      schedule: "daily"
+      duration: "30d"
+
+  outputs:
+    - name: "status"
+      value: "published"
+    - name: "url"
+      value: "${published_url}"
+    - name: "social_promotion"
+      value: "${social_posts}"
+
+  notifications:
+    - event: "approval_required"
+      channels: ["email:${approver}", "slack"]
+    - event: "published"
+      channels: ["slack:#content-team"]
+
+  metrics:
+    - name: "approval_time"
+      target: "1.5_days"
+    - name: "revision_rate"
+      target: "<20%"

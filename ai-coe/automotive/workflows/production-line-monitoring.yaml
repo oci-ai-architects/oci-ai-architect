@@ -1,0 +1,34 @@
+# Workflow: Production Line Monitoring
+workflow:
+  name: "production-line-monitoring"
+  version: "1.0.0"
+  description: "Real-time quality control and defect detection on production lines"
+  
+  triggers:
+    - type: "streaming"
+      source: "production_line_sensors"
+      
+  steps:
+    - id: "visual_inspection"
+      agent: "quality-control-agent"
+      action: "analyze_visual_inspection"
+      parallel: true
+      
+    - id: "sensor_check"
+      agent: "quality-control-agent"
+      action: "check_sensor_data"
+      parallel: true
+      
+    - id: "defect_decision"
+      condition: "defect_detected"
+      action: "log_and_alert"
+      
+    - id: "critical_halt"
+      condition: "critical_defect"
+      action: "halt_production_line"
+      requires_approval: false  # Autonomous for safety
+      
+  monitoring:
+    metrics:
+      - name: "defect_detection_latency"
+        target: "<100ms"

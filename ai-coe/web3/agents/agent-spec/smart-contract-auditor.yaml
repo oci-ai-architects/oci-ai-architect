@@ -1,0 +1,23 @@
+agent:
+  name: "smart-contract-auditor"
+  version: "1.0.0"
+  description: "Automated vulnerability scanning and code security analysis for smart contracts"
+  metadata:
+    industry: "web3"
+    maturity_level: "bronze"
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+  tools:
+    - name: "static_analysis"
+      type: "mcp_server"
+      mcp_server: "security-tools-mcp"
+    - name: "check_vulnerabilities"
+      type: "mcp_server"
+      mcp_server: "blockchain-mcp"
+  mcp_servers:
+    - name: "security-tools-mcp"
+      endpoint: "${MCP_SECURITY_ENDPOINT}"
+    - name: "blockchain-mcp"
+      endpoint: "${MCP_BLOCKCHAIN_ENDPOINT}"

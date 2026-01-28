@@ -1,0 +1,69 @@
+# Oracle Agent Spec: Social Media Manager Agent
+agent:
+  name: "social-media-manager"
+  version: "1.0.0"
+  description: "Automated social media scheduling, engagement monitoring, and sentiment analysis"
+
+  metadata:
+    industry: "creative-marketing"
+    maturity_level: "bronze"
+    autonomous_level: "medium"
+
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+      temperature: 0.6
+
+    system_prompt: |
+      You are a Social Media Manager Agent handling multi-platform social media operations.
+      Schedule posts, monitor engagement, analyze sentiment, respond to mentions, identify influencers.
+
+  tools:
+    - name: "schedule_post"
+      type: "mcp_server"
+      mcp_server: "social-media-mcp"
+    - name: "monitor_mentions"
+      type: "mcp_server"
+      mcp_server: "social-media-mcp"
+    - name: "analyze_sentiment"
+      type: "mcp_server"
+      mcp_server: "sentiment-mcp"
+    - name: "identify_influencers"
+      type: "mcp_server"
+      mcp_server: "social-media-mcp"
+
+  mcp_servers:
+    - name: "social-media-mcp"
+      endpoint: "${MCP_SOCIAL_ENDPOINT}"
+      platforms: ["twitter", "linkedin", "facebook", "instagram"]
+    - name: "sentiment-mcp"
+      endpoint: "${MCP_SENTIMENT_ENDPOINT}"
+
+  workflows:
+    - name: "daily_scheduling"
+      schedule: "0 7 * * *"
+      steps:
+        - action: "get_approved_content"
+        - action: "optimize_posting_times"
+        - action: "schedule_post"
+
+    - name: "engagement_monitoring"
+      trigger: "streaming"
+      steps:
+        - action: "monitor_mentions"
+        - action: "analyze_sentiment"
+        - action: "prioritize_responses"
+
+  governance:
+    human_oversight:
+      required_approvals:
+        - condition: "negative_sentiment_detected"
+          approver_role: "social_media_lead"
+
+  monitoring:
+    metrics:
+      - name: "engagement_rate"
+        target: "+40%"
+      - name: "response_time"
+        target: "< 1_hour"

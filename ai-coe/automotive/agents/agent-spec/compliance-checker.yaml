@@ -1,0 +1,33 @@
+# Oracle Agent Spec: Compliance Checker Agent
+agent:
+  name: "compliance-checker"
+  version: "1.0.0"
+  description: "Automated regulatory compliance auditing (ISO, safety standards)"
+  
+  metadata:
+    industry: "automotive"
+    maturity_level: "silver"
+    
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+      
+  tools:
+    - name: "audit_compliance"
+      type: "mcp_server"
+      mcp_server: "compliance-mcp"
+    - name: "verify_documents"
+      type: "mcp_server"
+      mcp_server: "document-mcp"
+      
+  mcp_servers:
+    - name: "compliance-mcp"
+      endpoint: "${MCP_COMPLIANCE_ENDPOINT}"
+    - name: "document-mcp"
+      endpoint: "${MCP_DOC_ENDPOINT}"
+      
+  monitoring:
+    metrics:
+      - name: "audit_duration"
+        target: "-80%"

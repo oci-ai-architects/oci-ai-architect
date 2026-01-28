@@ -1,0 +1,918 @@
+<!DOCTYPE html>
+<html lang="en" class="light-theme">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nexus Design System</title>
+    <link rel="stylesheet" href="apple-ui-style-guide.css">
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+    <style>
+        /* Futuristic Enhancements */
+        :root {
+            --gradient-primary: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            --gradient-surface: linear-gradient(145deg, rgba(255,255,255,0.9) 0%, rgba(248,250,252,0.8) 100%);
+            --gradient-hero: linear-gradient(180deg, rgba(255,255,255,0) 0%, rgba(248,250,252,0.4) 50%, rgba(255,255,255,0.8) 100%);
+            --shadow-glow: 0 0 40px rgba(0, 122, 255, 0.15);
+            --shadow-float: 0 8px 32px rgba(0, 0, 0, 0.08);
+            --border-subtle: rgba(0, 0, 0, 0.06);
+        }
+
+        body {
+            background: radial-gradient(ellipse at top, rgba(248, 250, 252, 0.3) 0%, transparent 50%),
+                        linear-gradient(180deg, #ffffff 0%, #fafbfc 100%);
+            min-height: 100vh;
+        }
+        
+        .demo-section {
+            margin-bottom: var(--spacing-64);
+        }
+        
+        .demo-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: var(--spacing-24);
+            margin-bottom: var(--spacing-32);
+        }
+        
+        .hero-section {
+            text-align: center;
+            padding: var(--spacing-64) 0 var(--spacing-48);
+            background: var(--gradient-hero);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero-section::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: radial-gradient(circle, rgba(0, 122, 255, 0.03) 0%, transparent 70%);
+            animation: float 20s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(-20px, -20px) rotate(1deg); }
+            66% { transform: translate(20px, -10px) rotate(-1deg); }
+        }
+        
+        .feature-icon {
+            width: 64px;
+            height: 64px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-2xl);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto var(--spacing-16);
+            color: var(--color-white);
+            box-shadow: var(--shadow-glow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-icon svg {
+            width: 28px;
+            height: 28px;
+            stroke-width: 1.5;
+        }
+
+        .feature-icon::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 3s infinite;
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+        
+        .stats-card {
+            text-align: center;
+            padding: var(--spacing-24);
+            position: relative;
+        }
+        
+        .stat-number {
+            font-size: var(--font-size-5xl);
+            font-weight: var(--font-weight-ultralight);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: var(--spacing-4);
+            line-height: 1;
+        }
+        
+        .navigation {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(40px) saturate(180%);
+            border-bottom: 1px solid var(--border-subtle);
+            padding: var(--spacing-12) 0;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            transition: all var(--transition-normal);
+        }
+
+        .navigation:hover {
+            background: rgba(255, 255, 255, 0.85);
+        }
+        
+        .nav-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .nav-links {
+            display: flex;
+            gap: var(--spacing-20);
+            list-style: none;
+        }
+        
+        .nav-links a {
+            font-weight: var(--font-weight-medium);
+            color: var(--color-secondary-label);
+            transition: all var(--transition-normal);
+            padding: var(--spacing-4) var(--spacing-8);
+            border-radius: var(--radius-lg);
+            position: relative;
+        }
+        
+        .nav-links a:hover {
+            color: var(--color-primary);
+            background: rgba(0, 122, 255, 0.08);
+            transform: translateY(-1px);
+        }
+        
+        .logo {
+            font-size: var(--font-size-title3);
+            font-weight: var(--font-weight-semibold);
+            background: var(--gradient-primary);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+        }
+        
+        .notification {
+            padding: var(--spacing-16);
+            border-radius: var(--radius-2xl);
+            margin-bottom: var(--spacing-16);
+            border: 1px solid var(--border-subtle);
+            background: var(--gradient-surface);
+            backdrop-filter: blur(20px);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .notification::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 0;
+            bottom: 0;
+            width: 3px;
+            border-radius: 0 2px 2px 0;
+        }
+        
+        .notification-success {
+            background: linear-gradient(145deg, rgba(48, 209, 88, 0.05) 0%, rgba(48, 209, 88, 0.02) 100%);
+            color: var(--color-success);
+        }
+
+        .notification-success::before {
+            background: var(--color-success);
+        }
+        
+        .notification-warning {
+            background: linear-gradient(145deg, rgba(255, 159, 10, 0.05) 0%, rgba(255, 159, 10, 0.02) 100%);
+            color: var(--color-warning);
+        }
+
+        .notification-warning::before {
+            background: var(--color-warning);
+        }
+        
+        .notification-error {
+            background: linear-gradient(145deg, rgba(255, 69, 58, 0.05) 0%, rgba(255, 69, 58, 0.02) 100%);
+            color: var(--color-error);
+        }
+
+        .notification-error::before {
+            background: var(--color-error);
+        }
+        
+        .profile-avatar {
+            width: 80px;
+            height: 80px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--color-white);
+            font-size: var(--font-size-2xl);
+            font-weight: var(--font-weight-medium);
+            margin: 0 auto var(--spacing-16);
+            box-shadow: var(--shadow-float);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .profile-avatar::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-full);
+            z-index: -1;
+            opacity: 0.3;
+            filter: blur(8px);
+        }
+        
+        .tag {
+            display: inline-block;
+            padding: var(--spacing-3) var(--spacing-8);
+            background: rgba(0, 122, 255, 0.08);
+            color: var(--color-primary);
+            border-radius: var(--radius-full);
+            font-size: var(--font-size-caption1);
+            font-weight: var(--font-weight-medium);
+            margin-right: var(--spacing-4);
+            margin-bottom: var(--spacing-4);
+            border: 1px solid rgba(0, 122, 255, 0.12);
+            transition: all var(--transition-fast);
+        }
+
+        .tag:hover {
+            background: rgba(0, 122, 255, 0.12);
+            transform: translateY(-1px);
+        }
+        
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(0, 0, 0, 0.06);
+            border-radius: var(--radius-full);
+            overflow: hidden;
+            margin-bottom: var(--spacing-8);
+            position: relative;
+        }
+        
+        .progress-fill {
+            height: 100%;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-full);
+            transition: width var(--transition-slow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .progress-fill::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+            animation: progress-shimmer 2s infinite;
+        }
+
+        @keyframes progress-shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        /* Enhanced Card Styles */
+        .card {
+            background: var(--gradient-surface);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-2xl);
+            box-shadow: var(--shadow-float);
+            overflow: hidden;
+            transition: all var(--transition-normal);
+            backdrop-filter: blur(20px);
+            position: relative;
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .card-body {
+            padding: var(--spacing-24);
+        }
+
+        .card-header {
+            padding: var(--spacing-24) var(--spacing-24) 0;
+            border-bottom: none;
+        }
+
+        .card-footer {
+            padding: 0 var(--spacing-24) var(--spacing-24);
+            border-top: none;
+            background: transparent;
+        }
+
+        /* Enhanced Button Styles */
+        .btn {
+            backdrop-filter: blur(20px);
+            border-radius: var(--radius-xl);
+            font-weight: var(--font-weight-semibold);
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            gap: var(--spacing-4);
+        }
+
+        .btn svg {
+            width: 18px;
+            height: 18px;
+            stroke-width: 2;
+        }
+
+        .btn-sm svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .btn-lg svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left var(--transition-normal);
+        }
+
+        .btn:hover::before {
+            left: 100%;
+        }
+
+        .btn-primary {
+            background: var(--gradient-primary);
+            border: none;
+            box-shadow: var(--shadow-glow);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(0, 122, 255, 0.3);
+        }
+
+        .btn-outline {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 122, 255, 0.2);
+            backdrop-filter: blur(20px);
+        }
+
+        .btn-outline:hover {
+            background: rgba(0, 122, 255, 0.08);
+            border-color: var(--color-primary);
+            transform: translateY(-1px);
+        }
+
+        /* Form Enhancements */
+        .form-input, .form-textarea, .form-select {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            backdrop-filter: blur(20px);
+            transition: all var(--transition-normal);
+        }
+
+        .form-input:focus, .form-textarea:focus, .form-select:focus {
+            background: rgba(255, 255, 255, 0.95);
+            border-color: var(--color-primary);
+            box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.1);
+            transform: translateY(-1px);
+        }
+
+        /* Minimalist Section Headers */
+        .demo-section h2 {
+            font-size: var(--font-size-title2);
+            font-weight: var(--font-weight-ultralight);
+            color: var(--color-label);
+            margin-bottom: var(--spacing-32);
+            text-align: center;
+            position: relative;
+        }
+
+        .demo-section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -var(--spacing-8);
+            left: 50%;
+            transform: translateX(-50%);
+            width: 40px;
+            height: 2px;
+            background: var(--gradient-primary);
+            border-radius: var(--radius-full);
+        }
+
+        /* Floating Elements */
+        .floating {
+            animation: gentle-float 6s ease-in-out infinite;
+        }
+
+        @keyframes gentle-float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        /* Glass Morphism Container */
+        .container {
+            position: relative;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 1px;
+            height: 100%;
+            background: linear-gradient(180deg, transparent, rgba(0, 122, 255, 0.1), transparent);
+            pointer-events: none;
+        }
+
+        /* Icon Styles */
+        .icon {
+            width: 20px;
+            height: 20px;
+            stroke-width: 1.5;
+        }
+
+        .icon-sm {
+            width: 16px;
+            height: 16px;
+        }
+
+        .icon-lg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .icon-xl {
+            width: 32px;
+            height: 32px;
+        }
+
+        /* Navigation Icons */
+        .nav-links svg {
+            width: 16px;
+            height: 16px;
+            stroke-width: 1.5;
+            opacity: 0.7;
+            transition: opacity var(--transition-fast);
+        }
+
+        .nav-links a:hover svg {
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navigation">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">Nexus</div>
+                <ul class="nav-links">
+                    <li><a href="#system"><i data-lucide="layers"></i> System</a></li>
+                    <li><a href="#components"><i data-lucide="component"></i> Components</a></li>
+                    <li><a href="#patterns"><i data-lucide="grid-3x3"></i> Patterns</a></li>
+                </ul>
+                <button class="btn btn-primary btn-sm">
+                    <i data-lucide="sparkles"></i>
+                    Experience
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero-section">
+        <div class="container">
+            <div class="floating">
+                <h1 class="font-ultralight text-5xl" style="margin-bottom: var(--spacing-16); line-height: 1.1;">The Future of<br><span class="font-medium">Interface Design</span></h1>
+                <p class="text-body text-secondary" style="margin-bottom: var(--spacing-32); max-width: 480px; margin-left: auto; margin-right: auto; line-height: 1.6;">
+                    Minimalist. Elegant. Intelligent. A design system that adapts to tomorrow's digital experiences.
+                </p>
+                <div class="flex gap-lg justify-center">
+                    <button class="btn btn-primary btn-lg">
+                        <i data-lucide="rocket"></i>
+                        Explore System
+                    </button>
+                    <button class="btn btn-outline btn-lg">
+                        <i data-lucide="book-open"></i>
+                        View Documentation
+                    </button>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <div class="container">
+        <!-- Typography Section -->
+        <section class="demo-section">
+            <h2>Typography Hierarchy</h2>
+            <div class="card floating">
+                <div class="card-body">
+                    <h1 class="font-ultralight">Ultra Light Display</h1>
+                    <h2 class="font-thin">Thin Section Header</h2>
+                    <h3 class="font-light">Light Subsection</h3>
+                    <h4 class="font-regular">Regular Component</h4>
+                    <p class="text-body">Optimized for readability across all devices. Every character, every space, every line height calculated for perfect visual harmony and cognitive ease.</p>
+                    <p class="text-footnote text-tertiary">Subtle details that enhance without distraction.</p>
+                    <code class="font-mono bg-gray-100 p-xs rounded-sm" style="background: rgba(0, 122, 255, 0.06); color: var(--color-primary);">system.interface.optimize()</code>
+                </div>
+            </div>
+        </section>
+
+        <!-- Interactive Elements -->
+        <section class="demo-section">
+            <h2>Interactive Elements</h2>
+            <div class="card floating">
+                <div class="card-body">
+                    <div class="flex gap-lg flex-wrap justify-center" style="margin-bottom: var(--spacing-24);">
+                        <button class="btn btn-primary">
+                            <i data-lucide="play"></i>
+                            Primary Action
+                        </button>
+                        <button class="btn btn-outline">
+                            <i data-lucide="settings"></i>
+                            Secondary
+                        </button>
+                        <button class="btn btn-primary" disabled style="opacity: 0.4;">
+                            <i data-lucide="loader-2" style="animation: spin 1s linear infinite;"></i>
+                            Processing...
+                        </button>
+                    </div>
+                    <div class="flex gap-lg flex-wrap justify-center">
+                        <button class="btn btn-primary btn-sm">
+                            <i data-lucide="zap"></i>
+                            Compact
+                        </button>
+                        <button class="btn btn-primary">
+                            <i data-lucide="cpu"></i>
+                            Standard
+                        </button>
+                        <button class="btn btn-primary btn-lg">
+                            <i data-lucide="crown"></i>
+                            Prominent
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Neural Interface -->
+        <section class="demo-section">
+            <h2>Neural Interface</h2>
+            <div class="card floating">
+                <div class="card-body">
+                    <div class="demo-grid">
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label" for="email">
+                                    <i data-lucide="mail" class="icon-sm" style="display: inline; margin-right: var(--spacing-2);"></i>
+                                    Neural ID
+                                </label>
+                                <input type="email" id="email" class="form-input" placeholder="your.neural@nexus.ai">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="password">
+                                    <i data-lucide="key" class="icon-sm" style="display: inline; margin-right: var(--spacing-2);"></i>
+                                    Quantum Key
+                                </label>
+                                <input type="password" id="password" class="form-input" placeholder="••••••••••••">
+                            </div>
+                            <div class="form-group">
+                                <label class="form-label" for="country">
+                                    <i data-lucide="globe" class="icon-sm" style="display: inline; margin-right: var(--spacing-2);"></i>
+                                    Neural Network
+                                </label>
+                                <select id="country" class="form-select">
+                                    <option>Select network node</option>
+                                    <option>North America Grid</option>
+                                    <option>European Matrix</option>
+                                    <option>Asia-Pacific Cluster</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="form-group">
+                                <label class="form-label" for="message">
+                                    <i data-lucide="message-circle" class="icon-sm" style="display: inline; margin-right: var(--spacing-2);"></i>
+                                    Neural Transmission
+                                </label>
+                                <textarea id="message" class="form-textarea" rows="6" placeholder="Transmit your thoughts to the neural network..."></textarea>
+                            </div>
+                            <button class="btn btn-primary">
+                                <i data-lucide="send"></i>
+                                Initialize Connection
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Components -->
+        <section class="demo-section">
+            <h2>System Components</h2>
+            <div class="demo-grid">
+                <div class="card floating">
+                    <div class="card-body" style="text-align: center;">
+                        <div class="feature-icon">
+                            <i data-lucide="brain-circuit"></i>
+                        </div>
+                        <h4 class="font-medium">Intelligent Adaptation</h4>
+                        <p class="text-secondary">Components that learn and evolve with user behavior patterns.</p>
+                        <div class="flex gap-xs justify-center" style="margin-top: var(--spacing-16);">
+                            <span class="tag">
+                                <i data-lucide="cpu" class="icon-sm" style="margin-right: var(--spacing-1);"></i>
+                                AI-Powered
+                            </span>
+                            <span class="tag">
+                                <i data-lucide="trending-up" class="icon-sm" style="margin-right: var(--spacing-1);"></i>
+                                Adaptive
+                            </span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card floating">
+                    <div class="card-body stats-card">
+                        <div class="feature-icon" style="margin-bottom: var(--spacing-8);">
+                            <i data-lucide="infinity"></i>
+                        </div>
+                        <div class="stat-number">∞</div>
+                        <h4 class="font-medium">Scalability</h4>
+                        <p class="text-tertiary">Infinite possibilities, zero compromises</p>
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card floating">
+                    <div class="card-body" style="text-align: center;">
+                        <div class="profile-avatar">
+                            <i data-lucide="bot" style="width: 32px; height: 32px;"></i>
+                        </div>
+                        <h4 class="font-medium">Neural Interface</h4>
+                        <p class="text-tertiary">Design System Architect</p>
+                        <p class="text-footnote text-secondary" style="margin: var(--spacing-16) 0;">"Bridging human intuition with computational precision to create interfaces that feel naturally intelligent."</p>
+                        <div class="flex gap-sm justify-center">
+                            <button class="btn btn-primary btn-sm">
+                                <i data-lucide="link"></i>
+                                Connect
+                            </button>
+                            <button class="btn btn-outline btn-sm">
+                                <i data-lucide="scan"></i>
+                                Analyze
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- System Feedback -->
+        <section class="demo-section">
+            <h2>System Feedback</h2>
+            <div class="card floating">
+                <div class="card-body">
+                    <div class="notification notification-success">
+                        <i data-lucide="check-circle" class="icon" style="display: inline; margin-right: var(--spacing-4);"></i>
+                        <strong>Neural sync complete</strong> — Your preferences have been integrated into the system matrix.
+                    </div>
+                    <div class="notification notification-warning">
+                        <i data-lucide="alert-triangle" class="icon" style="display: inline; margin-right: var(--spacing-4);"></i>
+                        <strong>Optimization pending</strong> — System is analyzing usage patterns for enhanced performance.
+                    </div>
+                    <div class="notification notification-error">
+                        <i data-lucide="wifi-off" class="icon" style="display: inline; margin-right: var(--spacing-4);"></i>
+                        <strong>Connection interrupted</strong> — Attempting to re-establish quantum link protocols.
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Color System -->
+        <section class="demo-section">
+            <h2>Chromatic Intelligence</h2>
+            <div class="card floating">
+                <div class="card-body">
+                    <div class="demo-grid">
+                        <div style="text-align: center;">
+                            <h4 class="font-light" style="margin-bottom: var(--spacing-16);">Semantic Spectrum</h4>
+                            <div class="flex gap-sm justify-center" style="margin-bottom: var(--spacing-16);">
+                                <div style="width: 48px; height: 48px; background: var(--gradient-primary); border-radius: var(--radius-full); box-shadow: var(--shadow-glow);"></div>
+                                <div style="width: 48px; height: 48px; background-color: var(--color-secondary); border-radius: var(--radius-full); box-shadow: 0 0 20px rgba(88, 86, 214, 0.3);"></div>
+                                <div style="width: 48px; height: 48px; background-color: var(--color-success); border-radius: var(--radius-full); box-shadow: 0 0 20px rgba(48, 209, 88, 0.3);"></div>
+                                <div style="width: 48px; height: 48px; background-color: var(--color-warning); border-radius: var(--radius-full); box-shadow: 0 0 20px rgba(255, 159, 10, 0.3);"></div>
+                                <div style="width: 48px; height: 48px; background-color: var(--color-error); border-radius: var(--radius-full); box-shadow: 0 0 20px rgba(255, 69, 58, 0.3);"></div>
+                            </div>
+                        </div>
+                        <div style="text-align: center;">
+                            <h4 class="font-light" style="margin-bottom: var(--spacing-16);">Neutral Foundation</h4>
+                            <div class="flex gap-2 justify-center">
+                                <div style="width: 24px; height: 48px; background-color: var(--color-gray-100); border-radius: var(--radius-lg);"></div>
+                                <div style="width: 24px; height: 48px; background-color: var(--color-gray-200); border-radius: var(--radius-lg);"></div>
+                                <div style="width: 24px; height: 48px; background-color: var(--color-gray-300); border-radius: var(--radius-lg);"></div>
+                                <div style="width: 24px; height: 48px; background-color: var(--color-gray-400); border-radius: var(--radius-lg);"></div>
+                                <div style="width: 24px; height: 48px; background-color: var(--color-gray-500); border-radius: var(--radius-lg);"></div>
+                                <div style="width: 24px; height: 48px; background-color: var(--color-gray-600); border-radius: var(--radius-lg);"></div>
+                                <div style="width: 24px; height: 48px; background-color: var(--color-gray-700); border-radius: var(--radius-lg);"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Spatial Computing -->
+        <section class="demo-section">
+            <h2>Spatial Computing</h2>
+            <div class="demo-grid">
+                <div class="card floating">
+                    <div class="card-body">
+                        <h4 class="font-medium">
+                            <i data-lucide="layout" class="icon" style="display: inline; margin-right: var(--spacing-4);"></i>
+                            Adaptive Layout
+                        </h4>
+                        <div class="flex items-center gap-md" style="margin-top: var(--spacing-16);">
+                            <div style="width: 40px; height: 40px; background: var(--gradient-primary); border-radius: var(--radius-lg); display: flex; align-items: center; justify-content: center;">
+                                <i data-lucide="layers" style="width: 20px; height: 20px; color: white;"></i>
+                            </div>
+                            <div class="flex-1">
+                                <h5 style="margin-bottom: var(--spacing-2); font-weight: var(--font-weight-medium);">Neural Container</h5>
+                                <p class="text-footnote text-tertiary" style="margin-bottom: 0;">Self-organizing spatial intelligence</p>
+                            </div>
+                            <button class="btn btn-outline btn-sm">
+                                <i data-lucide="expand"></i>
+                                Adapt
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="card floating">
+                    <div class="card-body">
+                        <h4 class="font-medium">
+                            <i data-lucide="grid-3x3" class="icon" style="display: inline; margin-right: var(--spacing-4);"></i>
+                            Quantum Grid
+                        </h4>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-8); margin-top: var(--spacing-16);">
+                            <div style="padding: var(--spacing-12); background: rgba(0, 122, 255, 0.08); border-radius: var(--radius-lg); text-align: center; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                                <i data-lucide="atom" class="icon" style="margin-bottom: var(--spacing-2); color: var(--color-primary);"></i>
+                                <span class="text-caption1">Node A</span>
+                            </div>
+                            <div style="padding: var(--spacing-12); background: rgba(88, 86, 214, 0.08); border-radius: var(--radius-lg); text-align: center; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                                <i data-lucide="orbit" class="icon" style="margin-bottom: var(--spacing-2); color: var(--color-secondary);"></i>
+                                <span class="text-caption1">Node B</span>
+                            </div>
+                            <div style="padding: var(--spacing-12); background: rgba(48, 209, 88, 0.08); border-radius: var(--radius-lg); text-align: center; grid-column: 1 / -1; display: flex; align-items: center; justify-content: center; flex-direction: column;">
+                                <i data-lucide="network" class="icon" style="margin-bottom: var(--spacing-2); color: var(--color-success);"></i>
+                                <span class="text-caption1">Unified Matrix</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background: var(--gradient-hero); padding: var(--spacing-64) 0; margin-top: var(--spacing-64); position: relative;">
+        <div class="container">
+            <div class="text-center">
+                <h3 class="font-ultralight text-title1" style="margin-bottom: var(--spacing-8);">Nexus Design System</h3>
+                <p class="text-tertiary text-body" style="margin-bottom: var(--spacing-24);">Where human intuition meets computational precision</p>
+                <div class="flex gap-lg justify-center">
+                    <a href="#" class="text-secondary" style="transition: all var(--transition-fast); display: flex; align-items: center; gap: var(--spacing-2);">
+                        <i data-lucide="file-text" class="icon-sm"></i>
+                        System Docs
+                    </a>
+                    <a href="#" class="text-secondary" style="transition: all var(--transition-fast); display: flex; align-items: center; gap: var(--spacing-2);">
+                        <i data-lucide="code" class="icon-sm"></i>
+                        Neural API
+                    </a>
+                    <a href="#" class="text-secondary" style="transition: all var(--transition-fast); display: flex; align-items: center; gap: var(--spacing-2);">
+                        <i data-lucide="headphones" class="icon-sm"></i>
+                        Quantum Support
+                    </a>
+                </div>
+                <div style="margin-top: var(--spacing-32); padding-top: var(--spacing-24); border-top: 1px solid var(--border-subtle);">
+                    <p class="text-caption1 text-quaternary">© 2025 Nexus. Designed for the future of human-computer interaction.</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+        
+        // Add some interactive enhancements
+        document.addEventListener('DOMContentLoaded', function() {
+            // Add hover effects to cards
+            const cards = document.querySelectorAll('.card');
+            cards.forEach(card => {
+                card.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-8px)';
+                });
+                card.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(-4px)';
+                });
+            });
+
+            // Add click ripple effect to buttons
+            const buttons = document.querySelectorAll('.btn');
+            buttons.forEach(button => {
+                button.addEventListener('click', function(e) {
+                    const ripple = document.createElement('span');
+                    const rect = this.getBoundingClientRect();
+                    const size = Math.max(rect.width, rect.height);
+                    const x = e.clientX - rect.left - size / 2;
+                    const y = e.clientY - rect.top - size / 2;
+                    
+                    ripple.style.cssText = `
+                        position: absolute;
+                        width: ${size}px;
+                        height: ${size}px;
+                        left: ${x}px;
+                        top: ${y}px;
+                        background: rgba(255, 255, 255, 0.3);
+                        border-radius: 50%;
+                        transform: scale(0);
+                        animation: ripple 0.6s ease-out;
+                        pointer-events: none;
+                    `;
+                    
+                    this.appendChild(ripple);
+                    
+                    setTimeout(() => {
+                        ripple.remove();
+                    }, 600);
+                });
+            });
+
+            // Add CSS for ripple animation
+            const style = document.createElement('style');
+            style.textContent = `
+                @keyframes ripple {
+                    to {
+                        transform: scale(2);
+                        opacity: 0;
+                    }
+                }
+                
+                @keyframes spin {
+                    from { transform: rotate(0deg); }
+                    to { transform: rotate(360deg); }
+                }
+            `;
+            document.head.appendChild(style);
+        });
+    </script>
+</body>
+</html>

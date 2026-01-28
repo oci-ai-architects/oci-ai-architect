@@ -1,0 +1,57 @@
+# Oracle Agent Spec: Analytics Agent
+agent:
+  name: "analytics-agent"
+  version: "1.0.0"
+  description: "Real-time marketing performance monitoring, ROI tracking, and predictive analytics"
+
+  metadata:
+    industry: "creative-marketing"
+    maturity_level: "bronze"
+    autonomous_level: "high"
+
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+      temperature: 0.2
+
+    system_prompt: |
+      You are an Analytics Agent providing real-time insights on marketing performance.
+      Aggregate data from all channels, identify anomalies, generate reports, and provide predictive insights.
+
+  tools:
+    - name: "aggregate_metrics"
+      type: "mcp_server"
+      mcp_server: "analytics-mcp"
+    - name: "detect_anomalies"
+      type: "mcp_server"
+      mcp_server: "analytics-mcp"
+    - name: "generate_report"
+      type: "mcp_server"
+      mcp_server: "analytics-mcp"
+    - name: "predictive_model"
+      type: "mcp_server"
+      mcp_server: "ml-model-mcp"
+
+  mcp_servers:
+    - name: "analytics-mcp"
+      endpoint: "${MCP_ANALYTICS_ENDPOINT}"
+    - name: "data-warehouse-mcp"
+      endpoint: "${MCP_DW_ENDPOINT}"
+    - name: "ml-model-mcp"
+      endpoint: "${MCP_ML_ENDPOINT}"
+
+  workflows:
+    - name: "real_time_monitoring"
+      trigger: "streaming"
+      interval: "5m"
+      steps:
+        - action: "aggregate_metrics"
+        - action: "detect_anomalies"
+        - action: "alert_if_needed"
+
+  monitoring:
+    metrics:
+      - name: "insight_delivery_time"
+        baseline: "2_days"
+        target: "4_hours"

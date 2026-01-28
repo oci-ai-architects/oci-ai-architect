@@ -1,0 +1,38 @@
+# Oracle Agent Spec: Predictive Maintenance Agent
+agent:
+  name: "predictive-maintenance"
+  version: "1.0.0"
+  description: "ML-based failure prediction and maintenance scheduling"
+  
+  metadata:
+    industry: "automotive"
+    maturity_level: "bronze"
+    
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+      
+  tools:
+    - name: "detect_anomalies"
+      type: "mcp_server"
+      mcp_server: "timeseries-mcp"
+    - name: "estimate_rul"
+      type: "mcp_server"
+      mcp_server: "ml-model-mcp"
+    - name: "schedule_maintenance"
+      type: "mcp_server"
+      mcp_server: "cmms-mcp"
+      
+  mcp_servers:
+    - name: "timeseries-mcp"
+      endpoint: "${MCP_TIMESERIES_ENDPOINT}"
+    - name: "ml-model-mcp"
+      endpoint: "${MCP_ML_ENDPOINT}"
+    - name: "cmms-mcp"
+      endpoint: "${MCP_CMMS_ENDPOINT}"
+      
+  monitoring:
+    metrics:
+      - name: "maintenance_cost_reduction"
+        target: "-30%"

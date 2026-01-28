@@ -1,0 +1,49 @@
+# Oracle Agent Spec: Quality Control Agent
+agent:
+  name: "quality-control-agent"
+  version: "1.0.0"
+  description: "Real-time defect detection using computer vision and sensor data from production lines"
+  
+  metadata:
+    industry: "automotive"
+    maturity_level: "bronze"
+    autonomous_level: "high"
+    
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+      temperature: 0.2
+      
+    system_prompt: |
+      You are a Quality Control Agent for automotive manufacturing.
+      Analyze visual inspection data, sensor readings, and production metrics to identify defects in real-time.
+      
+  tools:
+    - name: "analyze_visual_inspection"
+      type: "mcp_server"
+      mcp_server: "computer-vision-mcp"
+    - name: "check_sensor_data"
+      type: "mcp_server"
+      mcp_server: "iot-mcp"
+    - name: "log_defect"
+      type: "mcp_server"
+      mcp_server: "manufacturing-mcp"
+      
+  mcp_servers:
+    - name: "computer-vision-mcp"
+      endpoint: "${MCP_CV_ENDPOINT}"
+    - name: "iot-mcp"
+      endpoint: "${MCP_IOT_ENDPOINT}"
+    - name: "manufacturing-mcp"
+      endpoint: "${MCP_MFG_ENDPOINT}"
+      
+  workflows:
+    - name: "real_time_inspection"
+      trigger: "streaming"
+      interval: "1s"
+      
+  monitoring:
+    metrics:
+      - name: "defect_detection_rate"
+        target: "+40%"

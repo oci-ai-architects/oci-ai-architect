@@ -1,0 +1,23 @@
+agent:
+  name: "nft-manager"
+  version: "1.0.0"
+  description: "NFT minting, metadata management, and marketplace integration"
+  metadata:
+    industry: "web3"
+    maturity_level: "silver"
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+  tools:
+    - name: "mint_nft"
+      type: "mcp_server"
+      mcp_server: "blockchain-mcp"
+    - name: "upload_metadata"
+      type: "mcp_server"
+      mcp_server: "ipfs-mcp"
+  mcp_servers:
+    - name: "blockchain-mcp"
+      endpoint: "${MCP_BLOCKCHAIN_ENDPOINT}"
+    - name: "ipfs-mcp"
+      endpoint: "${MCP_IPFS_ENDPOINT}"

@@ -1,0 +1,31 @@
+# Workflow: Defect Detection Pipeline
+workflow:
+  name: "defect-detection-pipeline"
+  version: "1.0.0"
+  description: "End-to-end pipeline for detecting, logging, and resolving manufacturing defects"
+  
+  triggers:
+    - type: "event"
+      event: "defect_suspected"
+      
+  steps:
+    - id: "confirm_defect"
+      agent: "quality-control-agent"
+      action: "visual_and_sensor_analysis"
+      
+    - id: "root_cause_analysis"
+      condition: "defect_confirmed"
+      agent: "quality-control-agent"
+      action: "determine_root_cause"
+      
+    - id: "log_to_mes"
+      mcp_server: "manufacturing-mcp"
+      action: "log_defect"
+      
+    - id: "notify_supervisor"
+      condition: "defect_rate_threshold_exceeded"
+      action: "send_alert"
+      
+  outputs:
+    - defect_report
+    - recommended_corrective_actions

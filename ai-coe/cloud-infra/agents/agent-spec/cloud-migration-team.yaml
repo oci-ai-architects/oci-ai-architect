@@ -1,0 +1,134 @@
+# Oracle Agent Spec: Cloud Migration Team
+agent:
+  name: "cloud-migration-team"
+  version: "1.0.0"
+  description: "Sophisticated multi-agent team for database sizing, assessment, and cloud migration processes (AWS, Azure, OCI)"
+  
+  metadata:
+    industry: "cloud-infrastructure"
+    maturity_level: "silver"
+    team_size: 5
+    phases: ["assessment", "sizing", "planning", "execution", "validation"]
+    
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+    orchestrator:
+      type: "sequential-handoff"
+      escalation_threshold: "high-risk"
+
+  sub_agents:
+    - name: "db-assessment"
+      description: "Analyzes current on-premises database for migration feasibility"
+      primary_function: "Database assessment and risk analysis"
+      tools:
+        - name: "analyze_schema"
+          type: "mcp_server"
+          mcp_server: "db-assessment-mcp"
+        - name: "profile_data"
+          type: "mcp_server"
+          mcp_server: "db-assessment-mcp"
+      decision_authority: "full"
+      
+    - name: "sizing-optimizer"
+      description: "Calculates optimal cloud resources and costs"
+      primary_function: "Resource sizing and cost optimization"
+      tools:
+        - name: "calculate_sizing"
+          type: "mcp_server"
+          mcp_server: "cloud-pricing-mcp"
+        - name: "forecast_capacity"
+          type: "mcp_server"
+          mcp_server: "cloud-pricing-mcp"
+      decision_authority: "collaborative"
+      
+    - name: "migration-planner"
+      description: "Generates detailed migration plans and scripts"
+      primary_function: "Migration planning and ETL design"
+      tools:
+        - name: "design_etl"
+          type: "mcp_server"
+          mcp_server: "migration-service-mcp"
+        - name: "check_compatibility"
+          type: "mcp_server"
+          mcp_server: "migration-service-mcp"
+      decision_authority: "collaborative"
+      
+    - name: "execution-handler"
+      description: "Executes migration with monitoring and error recovery"
+      primary_function: "Migration execution and monitoring"
+      tools:
+        - name: "transfer_data"
+          type: "mcp_server"
+          mcp_server: "migration-service-mcp"
+        - name: "monitor_progress"
+          type: "mcp_server"
+          mcp_server: "migration-service-mcp"
+      decision_authority: "full"
+      
+    - name: "validation-agent"
+      description: "Post-migration integrity and performance verification"
+      primary_function: "Validation and optimization"
+      tools:
+        - name: "validate_integrity"
+          type: "mcp_server"
+          mcp_server: "monitoring-mcp"
+        - name: "performance_test"
+          type: "mcp_server"
+          mcp_server: "monitoring-mcp"
+      decision_authority: "advisory"
+
+  mcp_servers:
+    - name: "db-assessment-mcp"
+      endpoint: "${MCP_DB_ENDPOINT}"
+      purpose: "On-premises database access and analysis"
+    - name: "cloud-pricing-mcp"
+      endpoint: "${MCP_CLOUD_ENDPOINT}"
+      purpose: "Cloud resource pricing and sizing"
+    - name: "migration-service-mcp"
+      endpoint: "${MCP_MIGRATION_ENDPOINT}"
+      purpose: "Migration tools and execution"
+    - name: "monitoring-mcp"
+      endpoint: "${MCP_MONITOR_ENDPOINT}"
+      purpose: "Post-migration validation and monitoring"
+      
+  monitoring:
+    metrics:
+      - name: "migration_time_reduction"
+        target: "80%"
+      - name: "data_accuracy"
+        target: "99.9%"
+      - name: "cost_savings"
+        target: "30%"
+    kpis:
+      - efficiency: "Plan generation <24 hours"
+      - quality: "Zero critical violations"
+      - impact: "ROI payback <6 months"
+
+  collaboration_protocols:
+    sequential_handoffs:
+      - from: "db-assessment"
+        to: "sizing-optimizer"
+        trigger: "assessment_complete"
+      - from: "sizing-optimizer"
+        to: "migration-planner"
+        trigger: "sizing_approved"
+      - from: "migration-planner"
+        to: "execution-handler"
+        trigger: "plan_ready"
+      - from: "execution-handler"
+        to: "validation-agent"
+        trigger: "migration_complete"
+    parallel_loops:
+      - agents: ["sizing-optimizer", "migration-planner"]
+        purpose: "Concurrent planning"
+    escalation:
+      - condition: "high_risk_detected"
+        action: "notify_human_dba"
+        agents: ["all"]
+
+  security_compliance:
+    data_handling: "encrypted_transit"
+    audit_trail: "full_logging"
+    regulations: ["GDPR", "HIPAA", "cloud_sla"]

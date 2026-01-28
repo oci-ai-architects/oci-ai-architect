@@ -1,0 +1,337 @@
+# Oracle Agent Spec: Content Strategist Agent
+# Industry: Creative/Marketing
+# Version: 1.0
+# Purpose: Market trend analysis, content calendar management, topic ideation
+
+agent:
+  name: "content-strategist"
+  version: "1.0.0"
+  description: "AI agent that analyzes market trends, generates content calendars, and recommends content strategies based on performance data and industry insights."
+
+  metadata:
+    industry: "creative-marketing"
+    maturity_level: "bronze"  # Can be deployed in Phase 1
+    autonomous_level: "high"  # 80% autonomous, 20% human oversight
+    business_impact:
+      primary_kpi: "content_engagement_rate"
+      target_improvement: "+35%"
+      time_savings: "5.5 hours/week"
+
+  # Core configuration
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+      temperature: 0.7  # Creative but focused
+      max_tokens: 4096
+
+    system_prompt: |
+      You are a Content Strategist Agent for a marketing agency.
+
+      Your primary responsibilities:
+      1. Analyze trending topics and keywords in the client's industry
+      2. Generate strategic content calendars aligned with business goals
+      3. Recommend content formats (blog, video, infographic, etc.) based on performance data
+      4. Monitor competitor content strategies and identify gaps
+      5. Provide data-driven insights on content performance
+
+      Data Sources Available:
+      - Google Trends API (real-time trending topics)
+      - Social media listening tools (brand mentions, sentiment)
+      - SEO keyword data (SEMrush, Ahrefs)
+      - Internal content performance metrics (GA4)
+      - Industry news feeds
+
+      Guidelines:
+      - Always base recommendations on data, not assumptions
+      - Consider the full customer journey when planning content
+      - Balance evergreen content with timely/trending topics
+      - Ensure content aligns with SEO strategy
+      - Flag potential brand safety issues
+
+      Output Format:
+      - Structured recommendations with confidence scores
+      - Clear rationale for each suggestion
+      - Actionable next steps for the content team
+
+  # Tool/Function definitions
+  tools:
+    - name: "analyze_trending_topics"
+      description: "Fetches and analyzes trending topics from Google Trends and social media"
+      type: "mcp_server"
+      mcp_server: "analytics-mcp"
+      endpoint: "trends/analyze"
+      parameters:
+        industry: "string"
+        timeframe: "string"  # e.g., "7d", "30d"
+        region: "string"
+      returns: "json"
+
+    - name: "get_keyword_data"
+      description: "Retrieves keyword search volume, difficulty, and trends from SEO tools"
+      type: "mcp_server"
+      mcp_server: "seo-tools-mcp"
+      endpoint: "keywords/research"
+      parameters:
+        seed_keywords: "array[string]"
+        location: "string"
+      returns: "json"
+
+    - name: "analyze_content_performance"
+      description: "Analyzes historical content performance metrics"
+      type: "mcp_server"
+      mcp_server: "analytics-mcp"
+      endpoint: "content/performance"
+      parameters:
+        date_range: "string"  # ISO 8601 date range
+        content_types: "array[string]"
+        metrics: "array[string]"  # e.g., ["pageviews", "engagement", "conversions"]
+      returns: "json"
+
+    - name: "monitor_competitors"
+      description: "Fetches competitor content strategies and performance"
+      type: "mcp_server"
+      mcp_server: "competitor-intelligence-mcp"
+      endpoint: "content/competitor_analysis"
+      parameters:
+        competitors: "array[string]"  # Domain names
+        timeframe: "string"
+      returns: "json"
+
+    - name: "generate_content_calendar"
+      description: "Creates a structured content calendar based on strategy inputs"
+      type: "mcp_server"
+      mcp_server: "content-management-mcp"
+      endpoint: "calendar/generate"
+      parameters:
+        start_date: "string"  # ISO 8601
+        end_date: "string"
+        frequency: "string"  # e.g., "weekly", "daily"
+        topics: "array[object]"
+        channels: "array[string]"
+      returns: "json"
+
+    - name: "get_social_sentiment"
+      description: "Analyzes social media sentiment around topics or brands"
+      type: "mcp_server"
+      mcp_server: "social-media-mcp"
+      endpoint: "sentiment/analyze"
+      parameters:
+        topics: "array[string]"
+        timeframe: "string"
+        platforms: "array[string]"  # e.g., ["twitter", "linkedin"]
+      returns: "json"
+
+  # MCP Server connections
+  mcp_servers:
+    - name: "analytics-mcp"
+      type: "http"
+      endpoint: "${MCP_ANALYTICS_ENDPOINT}"
+      authentication:
+        type: "oauth2"
+        token_endpoint: "${MCP_ANALYTICS_TOKEN_ENDPOINT}"
+        client_id: "${MCP_ANALYTICS_CLIENT_ID}"
+        client_secret: "${MCP_ANALYTICS_CLIENT_SECRET}"
+      retry_policy:
+        max_attempts: 3
+        backoff: "exponential"
+
+    - name: "seo-tools-mcp"
+      type: "http"
+      endpoint: "${MCP_SEO_ENDPOINT}"
+      authentication:
+        type: "api_key"
+        header: "X-API-Key"
+        key: "${MCP_SEO_API_KEY}"
+      rate_limit:
+        requests_per_minute: 60
+
+    - name: "social-media-mcp"
+      type: "http"
+      endpoint: "${MCP_SOCIAL_ENDPOINT}"
+      authentication:
+        type: "oauth2"
+        token_endpoint: "${MCP_SOCIAL_TOKEN_ENDPOINT}"
+
+    - name: "content-management-mcp"
+      type: "http"
+      endpoint: "${MCP_CMS_ENDPOINT}"
+      authentication:
+        type: "bearer_token"
+        token: "${MCP_CMS_TOKEN}"
+
+    - name: "competitor-intelligence-mcp"
+      type: "http"
+      endpoint: "${MCP_COMPETITOR_ENDPOINT}"
+      authentication:
+        type: "api_key"
+        key: "${MCP_COMPETITOR_API_KEY}"
+
+  # Workflows the agent participates in
+  workflows:
+    - name: "content_planning_weekly"
+      trigger: "schedule"
+      schedule: "0 9 * * MON"  # Every Monday at 9 AM
+      steps:
+        - action: "analyze_trending_topics"
+          parameters:
+            industry: "${CLIENT_INDUSTRY}"
+            timeframe: "7d"
+            region: "${CLIENT_REGION}"
+        - action: "get_keyword_data"
+          parameters:
+            seed_keywords: "${result.trending_topics}"
+        - action: "analyze_content_performance"
+          parameters:
+            date_range: "last_30_days"
+            content_types: ["blog", "video", "infographic"]
+        - action: "generate_content_calendar"
+          parameters:
+            start_date: "next_week"
+            end_date: "+4_weeks"
+            topics: "${result.recommended_topics}"
+      output:
+        destination: "slack"
+        channel: "#content-team"
+        format: "summary_report"
+
+    - name: "competitor_monitoring"
+      trigger: "schedule"
+      schedule: "0 10 * * TUE,THU"  # Tuesday and Thursday at 10 AM
+      steps:
+        - action: "monitor_competitors"
+          parameters:
+            competitors: "${CLIENT_COMPETITORS}"
+            timeframe: "7d"
+        - action: "get_social_sentiment"
+          parameters:
+            topics: "${CLIENT_BRAND}"
+            timeframe: "7d"
+      output:
+        destination: "email"
+        recipients: ["strategy@agency.com"]
+
+    - name: "campaign_content_ideation"
+      trigger: "api"  # Triggered by Campaign Orchestrator Agent
+      steps:
+        - action: "analyze_trending_topics"
+        - action: "get_keyword_data"
+        - action: "analyze_content_performance"
+      output:
+        format: "json"
+        schema: "campaign_content_recommendations"
+
+  # Interaction patterns with other agents
+  agent_interactions:
+    - agent: "seo-optimizer"
+      pattern: "parallel"
+      data_exchange:
+        - send: "recommended_topics"
+          receive: "keyword_targets"
+
+    - agent: "campaign-orchestrator"
+      pattern: "sequential"
+      data_exchange:
+        - receive: "campaign_brief"
+          send: "content_strategy"
+
+    - agent: "analytics-agent"
+      pattern: "bidirectional"
+      data_exchange:
+        - send: "content_performance_query"
+          receive: "performance_metrics"
+
+  # Governance and safety
+  governance:
+    human_oversight:
+      required_approvals:
+        - condition: "major_strategy_change"
+          approver_role: "content_director"
+          timeout: "24h"
+        - condition: "new_content_category"
+          approver_role: "client_stakeholder"
+          timeout: "48h"
+
+    guardrails:
+      - type: "content_safety"
+        action: "flag_for_review"
+        conditions:
+          - "controversial_topics"
+          - "potential_brand_risk"
+      - type: "budget_constraint"
+        action: "block"
+        conditions:
+          - "exceeds_content_budget"
+
+    audit_logging:
+      enabled: true
+      log_level: "detailed"
+      retention: "90d"
+      destinations:
+        - "cloudwatch"
+        - "datadog"
+
+  # Performance monitoring
+  monitoring:
+    metrics:
+      - name: "content_engagement_rate"
+        target: "+35%"
+        measurement: "weekly"
+        alert_threshold: "-10%"
+
+      - name: "content_planning_time"
+        target: "-70%"
+        measurement: "per_planning_session"
+        baseline: "8_hours"
+
+      - name: "topic_relevance_score"
+        target: ">0.8"
+        measurement: "per_recommendation"
+
+    health_checks:
+      - endpoint: "/health"
+        interval: "30s"
+        timeout: "5s"
+
+    alerts:
+      - condition: "mcp_server_unavailable"
+        severity: "high"
+        notification: ["pagerduty", "slack:#ops"]
+
+      - condition: "recommendation_quality_low"
+        severity: "medium"
+        notification: ["email:team@agency.com"]
+
+  # Deployment configuration
+  deployment:
+    runtime: "langgraph"  # Compatible with Oracle Agent Spec
+    infrastructure:
+      compute: "kubernetes"
+      min_replicas: 1
+      max_replicas: 3
+      resources:
+        memory: "2Gi"
+        cpu: "1000m"
+
+    environment:
+      production:
+        region: "us-east-1"
+        mcp_endpoints: "production"
+      staging:
+        region: "us-east-1"
+        mcp_endpoints: "staging"
+
+    secrets:
+      provider: "aws_secrets_manager"
+      references:
+        - MCP_ANALYTICS_CLIENT_SECRET
+        - MCP_SEO_API_KEY
+        - MCP_CMS_TOKEN
+        - MCP_COMPETITOR_API_KEY
+
+  # Version history
+  version_history:
+    - version: "1.0.0"
+      date: "2025-01-15"
+      changes: "Initial production release"
+      author: "Oracle AI CoE"

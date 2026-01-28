@@ -1,0 +1,29 @@
+# Oracle Agent Spec: IoT Monitor Agent
+agent:
+  name: "iot-monitor"
+  version: "1.0.0"
+  description: "Real-time fleet telemetry processing and vehicle monitoring"
+  
+  metadata:
+    industry: "automotive"
+    maturity_level: "bronze"
+    
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+      
+  tools:
+    - name: "stream_telemetry"
+      type: "mcp_server"
+      mcp_server: "iot-mcp"
+    - name: "analyze_fleet_health"
+      type: "mcp_server"
+      mcp_server: "fleet-management-mcp"
+      
+  mcp_servers:
+    - name: "iot-mcp"
+      endpoint: "${MCP_IOT_ENDPOINT}"
+      protocol: "mqtt"
+    - name: "fleet-management-mcp"
+      endpoint: "${MCP_FLEET_ENDPOINT}"

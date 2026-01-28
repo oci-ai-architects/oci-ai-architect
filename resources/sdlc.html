@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Software Development Life Cycle (SDLC) Overview</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-indigo-100 min-h-screen flex flex-col items-center">
+  <header class="w-full py-10 bg-gradient-to-r from-indigo-600 to-cyan-500 shadow-lg mb-8">
+    <h1 class="text-4xl text-center font-extrabold text-white drop-shadow-lg">
+      <span id="lifecycle-icon" class="inline-block align-middle mr-3"></span>
+      Software Development Life Cycle (SDLC)
+    </h1>
+    <p class="mt-4 text-xl text-white text-center opacity-80">
+      A step-by-step guide to building high quality, reliable software.
+    </p>
+  </header>
+  <main class="flex flex-col items-center w-full max-w-3xl px-4">
+    <ol class="space-y-8 w-full">
+      <li class="flex items-start bg-white rounded-xl shadow p-6 gap-4 border-l-8 border-indigo-400">
+        <div id="planning-icon" class="icon"></div>
+        <div>
+          <h2 class="text-lg font-bold text-indigo-600 flex items-center">
+            Planning & Requirements
+          </h2>
+          <p class="mt-1 text-gray-600">Define objectives, constraints, and success criteria. Gather and document requirements from stakeholders to set scope and direction.</p>
+        </div>
+      </li>
+      <li class="flex items-start bg-white rounded-xl shadow p-6 gap-4 border-l-8 border-cyan-400">
+        <div id="analysis-icon" class="icon"></div>
+        <div>
+          <h2 class="text-lg font-bold text-cyan-600 flex items-center">
+            Analysis
+          </h2>
+          <p class="mt-1 text-gray-600">Refine requirements. Analyze feasibility, risks, and project impact. Prepare functional and non-functional specifications.</p>
+        </div>
+      </li>
+      <li class="flex items-start bg-white rounded-xl shadow p-6 gap-4 border-l-8 border-green-400">
+        <div id="design-icon" class="icon"></div>
+        <div>
+          <h2 class="text-lg font-bold text-green-600 flex items-center">
+            Design
+          </h2>
+          <p class="mt-1 text-gray-600">Design system architecture, data models, UI mockups, and technical interfaces. Prepare for implementation.</p>
+        </div>
+      </li>
+      <li class="flex items-start bg-white rounded-xl shadow p-6 gap-4 border-l-8 border-blue-400">
+        <div id="implementation-icon" class="icon"></div>
+        <div>
+          <h2 class="text-lg font-bold text-blue-600 flex items-center">
+            Implementation (Coding)
+          </h2>
+          <p class="mt-1 text-gray-600">Develop the software according to design specifications. Write, refactor, and review code in chosen technologies.</p>
+        </div>
+      </li>
+      <li class="flex items-start bg-white rounded-xl shadow p-6 gap-4 border-l-8 border-yellow-400">
+        <div id="testing-icon" class="icon"></div>
+        <div>
+          <h2 class="text-lg font-bold text-yellow-600 flex items-center">
+            Testing
+          </h2>
+          <p class="mt-1 text-gray-600">Systematically verify the software still meets requirements, finding and fixing defects with automated/manual tests.</p>
+        </div>
+      </li>
+      <li class="flex items-start bg-white rounded-xl shadow p-6 gap-4 border-l-8 border-fuchsia-400">
+        <div id="deployment-icon" class="icon"></div>
+        <div>
+          <h2 class="text-lg font-bold text-fuchsia-600 flex items-center">
+            Deployment
+          </h2>
+          <p class="mt-1 text-gray-600">Release the product to production environments. Handle versioning, user training, and initial support.</p>
+        </div>
+      </li>
+      <li class="flex items-start bg-white rounded-xl shadow p-6 gap-4 border-l-8 border-gray-400">
+        <div id="maintenance-icon" class="icon"></div>
+        <div>
+          <h2 class="text-lg font-bold text-gray-600 flex items-center">
+            Maintenance & Continuous Improvement
+          </h2>
+          <p class="mt-1 text-gray-600">Monitor, support, and enhance the software after deployment. Address bugs, apply updates, and evolve features as needs change.</p>
+        </div>
+      </li>
+    </ol>
+  </main>
+  <footer class="mt-12 w-full text-center text-gray-400 text-sm pb-6">
+    &copy; 2025 SDLC Visualization &middot; Powered by Tailwind CSS & Lucide Icons
+  </footer>
+  <script>
+    // Lucide icon rendering for each SDLC step
+    lucide.createIcons({
+      icons: {
+        'lifecycle-icon': 'cycle',
+        'planning-icon': 'file-text',
+        'analysis-icon': 'search',
+        'design-icon': 'layers',
+        'implementation-icon': 'code',
+        'testing-icon': 'check-circle',
+        'deployment-icon': 'cloud-upload',
+        'maintenance-icon': 'wrench'
+      }
+    });
+
+    // Render main SDLC icon
+    lucide.createIcon('cycle').appendTo(document.getElementById('lifecycle-icon'));
+
+    // Render icons in each SDLC step
+    lucide.createIcon('file-text').appendTo(document.getElementById('planning-icon'));
+    lucide.createIcon('search').appendTo(document.getElementById('analysis-icon'));
+    lucide.createIcon('layers').appendTo(document.getElementById('design-icon'));
+    lucide.createIcon('code').appendTo(document.getElementById('implementation-icon'));
+    lucide.createIcon('check-circle').appendTo(document.getElementById('testing-icon'));
+    lucide.createIcon('cloud-upload').appendTo(document.getElementById('deployment-icon'));
+    lucide.createIcon('wrench').appendTo(document.getElementById('maintenance-icon'));
+  </script>
+</body>
+</html>

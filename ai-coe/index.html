@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oracle AI Center of Excellence - Enterprise Agent Architecture</title>
+    <link rel="stylesheet" href="006-oracle-aicoe-design-system.css">
+    <style>
+        /* Custom overrides for executive presentation */
+        body {
+            padding: 0;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+            color: white;
+            padding: var(--space-xl) 0;
+            margin-bottom: var(--space-xl);
+            box-shadow: var(--shadow-lg);
+        }
+
+        .hero h1 {
+            font-size: clamp(32px, 5vw, 48px);
+            font-weight: 700;
+            margin-bottom: var(--space-sm);
+            color: white;
+        }
+
+        .hero-subtitle {
+            font-size: clamp(18px, 3vw, 24px);
+            opacity: 0.95;
+            color: white;
+            font-weight: 400;
+        }
+
+        .executive-summary {
+            background: linear-gradient(135deg, var(--primary-light) 0%, var(--bg-primary) 100%);
+            border: 2px solid var(--primary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-xl);
+        }
+
+        .value-prop {
+            background: white;
+            border-left: 4px solid var(--primary);
+            padding: var(--space-md);
+            margin: var(--space-sm) 0;
+            border-radius: var(--radius-md);
+            box-shadow: var(--shadow-sm);
+        }
+
+        .value-prop h4 {
+            color: var(--primary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .department-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: var(--space-md);
+            margin-top: var(--space-md);
+        }
+
+        .department-card {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            transition: all var(--transition-normal);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .department-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: var(--primary);
+            transform: scaleY(0);
+            transition: transform var(--transition-normal);
+        }
+
+        .department-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary);
+        }
+
+        .department-card:hover::before {
+            transform: scaleY(1);
+        }
+
+        .department-icon {
+            font-size: 48px;
+            margin-bottom: var(--space-sm);
+        }
+
+        .agent-example {
+            background: var(--bg-secondary);
+            border-radius: var(--radius-md);
+            padding: var(--space-sm);
+            margin: var(--space-xs) 0;
+            border-left: 3px solid var(--accent);
+        }
+
+        .agent-example-name {
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 4px;
+        }
+
+        .agent-example-desc {
+            font-size: var(--font-small);
+            color: var(--text-secondary);
+        }
+
+        .implementation-phase {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-md);
+            margin-bottom: var(--space-md);
+            position: relative;
+            padding-left: calc(var(--space-lg) + 20px);
+        }
+
+        .phase-number {
+            position: absolute;
+            left: var(--space-md);
+            top: var(--space-md);
+            width: 40px;
+            height: 40px;
+            background: var(--primary);
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 18px;
+        }
+
+        .roi-metric {
+            text-align: center;
+            padding: var(--space-lg);
+            background: linear-gradient(135deg, var(--bg-primary) 0%, var(--primary-light) 100%);
+            border: 1px solid var(--primary);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-md);
+        }
+
+        .roi-value {
+            font-size: clamp(32px, 4vw, 48px);
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+            margin-bottom: var(--space-xs);
+        }
+
+        .roi-label {
+            font-size: var(--font-body);
+            color: var(--text-secondary);
+            font-weight: 600;
+        }
+
+        .framework-section {
+            background: var(--bg-primary);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin-bottom: var(--space-md);
+            box-shadow: var(--shadow-md);
+        }
+
+        .architecture-diagram {
+            background: var(--bg-secondary);
+            border: 2px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-lg);
+            margin: var(--space-md) 0;
+            text-align: center;
+        }
+
+        .layer {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-md);
+            padding: var(--space-md);
+            margin: var(--space-sm) 0;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .layer-title {
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: var(--space-xs);
+        }
+
+        .governance-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: var(--space-md);
+            margin-top: var(--space-md);
+        }
+
+        .governance-pillar {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            padding: var(--space-md);
+            text-align: center;
+        }
+
+        .pillar-icon {
+            font-size: 36px;
+            margin-bottom: var(--space-sm);
+        }
+
+        .cta-section {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            color: white;
+            padding: var(--space-xl) 0;
+            margin-top: var(--space-xl);
+            text-align: center;
+            border-radius: var(--radius-lg);
+        }
+
+        .cta-section h2 {
+            color: white;
+            margin-bottom: var(--space-md);
+        }
+
+        .badge-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs);
+            margin-top: var(--space-sm);
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            background: var(--accent-light);
+            color: var(--accent-dark);
+            border-radius: var(--radius-full);
+            font-size: var(--font-small);
+            font-weight: 500;
+        }
+
+        .badge-primary {
+            background: var(--primary-light);
+            color: var(--primary-dark);
+        }
+
+        .badge-success {
+            background: var(--success-bg);
+            color: var(--success);
+        }
+
+        @media (max-width: 768px) {
+            .department-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .roi-value {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-container">
+                <a href="#" class="nav-brand">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+                        <circle cx="12" cy="12" r="10" fill="var(--primary)"/>
+                        <path d="M12 6v12M6 12h12" stroke="white" stroke-width="2"/>
+                    </svg>
+                    Oracle AI CoE
+                </a>
+                <ul class="nav-menu">
+                    <li><a href="#strategy" class="nav-link">Strategy</a></li>
+                    <li><a href="#departments" class="nav-link">Departments</a></li>
+                    <li><a href="#framework" class="nav-link">Framework</a></li>
+                    <li><a href="#roi" class="nav-link">ROI</a></li>
+                    <li><a href="#governance" class="nav-link">Governance</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <div class="hero">
+        <div class="container text-center">
+            <h1>Enterprise AI Agent Architecture</h1>
+            <p class="hero-subtitle">Building Open Standards for Organizational AI at Scale</p>
+            <p style="margin-top: var(--space-md); font-size: var(--font-body); opacity: 0.9;">
+                Powered by Oracle Agent Spec Framework
+            </p>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- Executive Summary -->
+        <section id="strategy" class="section">
+            <div class="executive-summary">
+                <h2 style="color: var(--primary); margin-bottom: var(--space-md);">Executive Summary</h2>
+                <p style="font-size: 18px; line-height: 1.6; color: var(--text-primary); margin-bottom: var(--space-md);">
+                    <strong>Transform your organization with a comprehensive, standards-based AI agent architecture.</strong>
+                    This framework enables every department to leverage autonomous AI agents while maintaining enterprise-grade
+                    governance, security, and interoperability.
+                </p>
+
+                <div class="grid grid-cols-3">
+                    <div class="roi-metric">
+                        <div class="roi-value">40%</div>
+                        <div class="roi-label">Efficiency Gain</div>
+                    </div>
+                    <div class="roi-metric">
+                        <div class="roi-value">60%</div>
+                        <div class="roi-label">Faster Deployment</div>
+                    </div>
+                    <div class="roi-metric">
+                        <div class="roi-value">$2M+</div>
+                        <div class="roi-label">Annual Savings</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Strategic Value Propositions -->
+            <h2 class="mb-md">Strategic Value Propositions</h2>
+
+            <div class="value-prop">
+                <h4>🎯 Open Standards Foundation</h4>
+                <p>Built on Oracle Agent Spec - an open, portable framework ensuring agents work across platforms, preventing vendor lock-in while maintaining flexibility.</p>
+            </div>
+
+            <div class="value-prop">
+                <h4>🚀 Rapid Organizational Scaling</h4>
+                <p>Deploy specialized agents across all departments in weeks, not years. Pre-built templates accelerate time-to-value while maintaining consistency.</p>
+            </div>
+
+            <div class="value-prop">
+                <h4>🔒 Enterprise-Grade Governance</h4>
+                <p>Comprehensive security, compliance, and audit frameworks built-in from day one. Meet regulatory requirements while enabling innovation.</p>
+            </div>
+
+            <div class="value-prop">
+                <h4>💡 Future-Proof Architecture</h4>
+                <p>Modular, extensible design adapts to evolving AI capabilities. Integrate new LLMs, tools, and frameworks without rebuilding your infrastructure.</p>
+            </div>
+        </section>
+
+        <!-- Department-Specific Agent Strategy -->
+        <section id="departments" class="section">
+            <h2 class="text-center mb-md">Department-Specific AI Agent Strategy</h2>
+            <p class="text-center mb-md" style="font-size: 18px; color: var(--text-secondary);">
+                Every department gets tailored AI agents designed for their specific workflows, compliance requirements, and business objectives.
+            </p>
+
+            <div class="department-grid">
+                <!-- Executive Leadership -->
+                <div class="department-card">
+                    <div class="department-icon">👔</div>
+                    <h3>Executive Leadership</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">
+                        Strategic decision support and organizational intelligence
+                    </p>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Strategic Intelligence Agent</div>
+                        <div class="agent-example-desc">Real-time market analysis, competitor intelligence, and trend forecasting</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Executive Dashboard Agent</div>
+                        <div class="agent-example-desc">Automated KPI tracking, board report generation, and performance analytics</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Risk Assessment Agent</div>
+                        <div class="agent-example-desc">Enterprise risk monitoring, scenario planning, and mitigation recommendations</div>
+                    </div>
+
+                    <div class="badge-group">
+                        <span class="badge badge-primary">Strategic Planning</span>
+                        <span class="badge">Analytics</span>
+                        <span class="badge">Forecasting</span>
+                    </div>
+                </div>
+
+                <!-- Finance -->
+                <div class="department-card">
+                    <div class="department-icon">💰</div>
+                    <h3>Finance & Accounting</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">
+                        Automated financial operations and intelligent analysis
+                    </p>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Invoice Processing Agent</div>
+                        <div class="agent-example-desc">Automated AP/AR, anomaly detection, and payment optimization</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Financial Forecasting Agent</div>
+                        <div class="agent-example-desc">Revenue projections, budget planning, and variance analysis</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Compliance Monitoring Agent</div>
+                        <div class="agent-example-desc">SOX compliance, audit trail generation, and regulatory reporting</div>
+                    </div>
+
+                    <div class="badge-group">
+                        <span class="badge badge-success">ROI: 65%</span>
+                        <span class="badge">Automation</span>
+                        <span class="badge">Compliance</span>
+                    </div>
+                </div>
+
+                <!-- Human Resources -->
+                <div class="department-card">
+                    <div class="department-icon">👥</div>
+                    <h3>Human Resources</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">
+                        Talent management and employee experience enhancement
+                    </p>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Recruitment Agent</div>
+                        <div class="agent-example-desc">Resume screening, candidate matching, and interview scheduling</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Employee Onboarding Agent</div>
+                        <div class="agent-example-desc">Personalized onboarding plans, document processing, and training coordination</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Performance Review Agent</div>
+                        <div class="agent-example-desc">360° feedback analysis, goal tracking, and development recommendations</div>
+                    </div>
+
+                    <div class="badge-group">
+                        <span class="badge badge-primary">Talent</span>
+                        <span class="badge">Engagement</span>
+                        <span class="badge">Analytics</span>
+                    </div>
+                </div>
+
+                <!-- Sales & Marketing -->
+                <div class="department-card">
+                    <div class="department-icon">📈</div>
+                    <h3>Sales & Marketing</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">
+                        Revenue acceleration and customer engagement
+                    </p>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Lead Qualification Agent</div>
+                        <div class="agent-example-desc">Intelligent lead scoring, nurturing campaigns, and conversion optimization</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Content Generation Agent</div>
+                        <div class="agent-example-desc">Campaign copy, social media content, and personalized messaging</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Sales Intelligence Agent</div>
+                        <div class="agent-example-desc">Deal analysis, win/loss patterns, and competitive positioning</div>
+                    </div>
+
+                    <div class="badge-group">
+                        <span class="badge badge-success">ROI: 85%</span>
+                        <span class="badge">Revenue</span>
+                        <span class="badge">Conversion</span>
+                    </div>
+                </div>
+
+                <!-- Customer Support -->
+                <div class="department-card">
+                    <div class="department-icon">🎧</div>
+                    <h3>Customer Support</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">
+                        24/7 intelligent customer service at scale
+                    </p>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Support Triage Agent</div>
+                        <div class="agent-example-desc">Ticket classification, priority routing, and SLA management</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Knowledge Base Agent</div>
+                        <div class="agent-example-desc">Automated documentation search, answer generation, and self-service support</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Sentiment Analysis Agent</div>
+                        <div class="agent-example-desc">Customer satisfaction tracking, churn prediction, and proactive intervention</div>
+                    </div>
+
+                    <div class="badge-group">
+                        <span class="badge badge-primary">CSAT +35%</span>
+                        <span class="badge">Automation</span>
+                        <span class="badge">24/7</span>
+                    </div>
+                </div>
+
+                <!-- IT & Operations -->
+                <div class="department-card">
+                    <div class="department-icon">⚙️</div>
+                    <h3>IT & Operations</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">
+                        Infrastructure automation and incident management
+                    </p>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">DevOps Automation Agent</div>
+                        <div class="agent-example-desc">CI/CD pipeline management, deployment automation, and rollback handling</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Infrastructure Monitoring Agent</div>
+                        <div class="agent-example-desc">Anomaly detection, predictive maintenance, and capacity planning</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Security Operations Agent</div>
+                        <div class="agent-example-desc">Threat detection, vulnerability scanning, and incident response</div>
+                    </div>
+
+                    <div class="badge-group">
+                        <span class="badge badge-success">Uptime: 99.9%</span>
+                        <span class="badge">Automation</span>
+                        <span class="badge">Security</span>
+                    </div>
+                </div>
+
+                <!-- Product Development -->
+                <div class="department-card">
+                    <div class="department-icon">🔬</div>
+                    <h3>Product Development</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">
+                        Innovation acceleration and quality assurance
+                    </p>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Requirements Analysis Agent</div>
+                        <div class="agent-example-desc">User story generation, acceptance criteria, and feasibility assessment</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Code Review Agent</div>
+                        <div class="agent-example-desc">Automated code analysis, security scanning, and best practice enforcement</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Test Automation Agent</div>
+                        <div class="agent-example-desc">Test case generation, regression testing, and bug triage</div>
+                    </div>
+
+                    <div class="badge-group">
+                        <span class="badge badge-primary">Velocity +50%</span>
+                        <span class="badge">Quality</span>
+                        <span class="badge">Innovation</span>
+                    </div>
+                </div>
+
+                <!-- Legal & Compliance -->
+                <div class="department-card">
+                    <div class="department-icon">⚖️</div>
+                    <h3>Legal & Compliance</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">
+                        Risk mitigation and regulatory excellence
+                    </p>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Contract Analysis Agent</div>
+                        <div class="agent-example-desc">Clause extraction, risk assessment, and obligation tracking</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Regulatory Monitoring Agent</div>
+                        <div class="agent-example-desc">Compliance tracking, policy updates, and audit preparation</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">eDiscovery Agent</div>
+                        <div class="agent-example-desc">Document review, relevance ranking, and evidence compilation</div>
+                    </div>
+
+                    <div class="badge-group">
+                        <span class="badge badge-success">Risk -45%</span>
+                        <span class="badge">Compliance</span>
+                        <span class="badge">Audit Ready</span>
+                    </div>
+                </div>
+
+                <!-- Supply Chain -->
+                <div class="department-card">
+                    <div class="department-icon">🚚</div>
+                    <h3>Supply Chain</h3>
+                    <p style="color: var(--text-secondary); margin-bottom: var(--space-md);">
+                        Optimization and predictive logistics
+                    </p>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Demand Forecasting Agent</div>
+                        <div class="agent-example-desc">Inventory optimization, seasonal planning, and replenishment automation</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Supplier Management Agent</div>
+                        <div class="agent-example-desc">Vendor evaluation, risk assessment, and performance tracking</div>
+                    </div>
+
+                    <div class="agent-example">
+                        <div class="agent-example-name">Logistics Optimization Agent</div>
+                        <div class="agent-example-desc">Route planning, cost optimization, and delivery tracking</div>
+                    </div>
+
+                    <div class="badge-group">
+                        <span class="badge badge-success">Cost -30%</span>
+                        <span class="badge">Efficiency</span>
+                        <span class="badge">Optimization</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Implementation Framework -->
+        <section id="framework" class="section">
+            <h2 class="text-center mb-md">Enterprise Implementation Framework</h2>
+
+            <div class="framework-section">
+                <h3 style="margin-bottom: var(--space-md);">Oracle Agent Spec Architecture</h3>
+
+                <div class="architecture-diagram">
+                    <div class="layer">
+                        <div class="layer-title">🎯 Agent Layer</div>
+                        <p>Specialized agents for each department, built with Oracle Agent Spec standards</p>
+                    </div>
+
+                    <div style="padding: var(--space-sm); color: var(--text-tertiary);">↕️</div>
+
+                    <div class="layer">
+                        <div class="layer-title">🔧 Tool & Integration Layer</div>
+                        <p>Reusable tools, APIs, and connectors to enterprise systems (Oracle Cloud, Salesforce, SAP, etc.)</p>
+                    </div>
+
+                    <div style="padding: var(--space-sm); color: var(--text-tertiary);">↕️</div>
+
+                    <div class="layer">
+                        <div class="layer-title">🤖 LLM & Orchestration Layer</div>
+                        <p>Model serving (Oracle OCI Gen AI, vLLM), agent orchestration, and workflow management</p>
+                    </div>
+
+                    <div style="padding: var(--space-sm); color: var(--text-tertiary);">↕️</div>
+
+                    <div class="layer">
+                        <div class="layer-title">🔒 Governance & Security Layer</div>
+                        <p>Access control, audit logging, compliance monitoring, and data privacy</p>
+                    </div>
+
+                    <div style="padding: var(--space-sm); color: var(--text-tertiary);">↕️</div>
+
+                    <div class="layer">
+                        <div class="layer-title">☁️ Infrastructure Layer</div>
+                        <p>Oracle Cloud Infrastructure, containerization, monitoring, and observability</p>
+                    </div>
+                </div>
+            </div>
+
+            <h3 class="mb-md" style="margin-top: var(--space-xl);">5-Phase Implementation Roadmap</h3>
+
+            <div class="implementation-phase">
+                <div class="phase-number">1</div>
+                <h4>Foundation & Pilot (Weeks 1-4)</h4>
+                <p style="color: var(--text-secondary); margin-bottom: var(--space-sm);">
+                    Establish infrastructure, governance framework, and deploy 2-3 pilot agents in high-value departments
+                </p>
+                <div class="badge-group">
+                    <span class="badge">Infrastructure Setup</span>
+                    <span class="badge">Pilot Agents</span>
+                    <span class="badge">Quick Wins</span>
+                </div>
+                <p style="margin-top: var(--space-sm);"><strong>Success Metrics:</strong> 2 production agents, measurable ROI, stakeholder buy-in</p>
+            </div>
+
+            <div class="implementation-phase">
+                <div class="phase-number">2</div>
+                <h4>Department Expansion (Weeks 5-12)</h4>
+                <p style="color: var(--text-secondary); margin-bottom: var(--space-sm);">
+                    Roll out specialized agents across all major departments, establish templates and best practices
+                </p>
+                <div class="badge-group">
+                    <span class="badge">12+ Department Agents</span>
+                    <span class="badge">Template Library</span>
+                    <span class="badge">Training Program</span>
+                </div>
+                <p style="margin-top: var(--space-sm);"><strong>Success Metrics:</strong> 80% department coverage, agent utilization >60%, positive user feedback</p>
+            </div>
+
+            <div class="implementation-phase">
+                <div class="phase-number">3</div>
+                <h4>Integration & Automation (Weeks 13-20)</h4>
+                <p style="color: var(--text-secondary); margin-bottom: var(--space-sm);">
+                    Deep integration with enterprise systems, multi-agent workflows, and advanced automation
+                </p>
+                <div class="badge-group">
+                    <span class="badge">System Integration</span>
+                    <span class="badge">Workflow Automation</span>
+                    <span class="badge">Advanced Analytics</span>
+                </div>
+                <p style="margin-top: var(--space-sm);"><strong>Success Metrics:</strong> 20+ integrated systems, 10+ automated workflows, efficiency gains measured</p>
+            </div>
+
+            <div class="implementation-phase">
+                <div class="phase-number">4</div>
+                <h4>Optimization & Scale (Weeks 21-32)</h4>
+                <p style="color: var(--text-secondary); margin-bottom: var(--space-sm);">
+                    Performance optimization, cost reduction, and scaling to enterprise-wide deployment
+                </p>
+                <div class="badge-group">
+                    <span class="badge">Performance Tuning</span>
+                    <span class="badge">Cost Optimization</span>
+                    <span class="badge">Global Rollout</span>
+                </div>
+                <p style="margin-top: var(--space-sm);"><strong>Success Metrics:</strong> 90% user adoption, 40%+ efficiency gains, documented ROI</p>
+            </div>
+
+            <div class="implementation-phase">
+                <div class="phase-number">5</div>
+                <h4>Innovation & Evolution (Ongoing)</h4>
+                <p style="color: var(--text-secondary); margin-bottom: var(--space-sm);">
+                    Continuous improvement, emerging technology integration, and innovation lab for experimental agents
+                </p>
+                <div class="badge-group">
+                    <span class="badge">Innovation Lab</span>
+                    <span class="badge">New Capabilities</span>
+                    <span class="badge">Competitive Edge</span>
+                </div>
+                <p style="margin-top: var(--space-sm);"><strong>Success Metrics:</strong> Quarterly new capabilities, industry leadership, continuous value delivery</p>
+            </div>
+        </section>
+
+        <!-- ROI & Business Value -->
+        <section id="roi" class="section">
+            <h2 class="text-center mb-md">Quantifiable Business Impact</h2>
+
+            <div class="grid grid-cols-4">
+                <div class="metric-card">
+                    <div class="metric-value primary">$2.4M</div>
+                    <div class="metric-label">Annual Cost Savings</div>
+                    <p style="margin-top: var(--space-sm); font-size: var(--font-small); color: var(--text-tertiary);">
+                        First-year conservative estimate
+                    </p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-value success">40%</div>
+                    <div class="metric-label">Productivity Increase</div>
+                    <p style="margin-top: var(--space-sm); font-size: var(--font-small); color: var(--text-tertiary);">
+                        Average across departments
+                    </p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-value accent">60%</div>
+                    <div class="metric-label">Faster Decision-Making</div>
+                    <p style="margin-top: var(--space-sm); font-size: var(--font-small); color: var(--text-tertiary);">
+                        Real-time insights enabled
+                    </p>
+                </div>
+
+                <div class="metric-card">
+                    <div class="metric-value warning">85%</div>
+                    <div class="metric-label">Process Automation</div>
+                    <p style="margin-top: var(--space-sm); font-size: var(--font-small); color: var(--text-tertiary);">
+                        Repetitive tasks eliminated
+                    </p>
+                </div>
+            </div>
+
+            <div class="framework-section" style="margin-top: var(--space-lg);">
+                <h3>ROI Breakdown by Department</h3>
+                <div class="table-container" style="margin-top: var(--space-md);">
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Department</th>
+                                <th>Annual Savings</th>
+                                <th>Efficiency Gain</th>
+                                <th>Primary Value Driver</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td><strong>Finance & Accounting</strong></td>
+                                <td>$420K</td>
+                                <td>65%</td>
+                                <td>Invoice processing automation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Customer Support</strong></td>
+                                <td>$380K</td>
+                                <td>55%</td>
+                                <td>24/7 automated tier-1 support</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Sales & Marketing</strong></td>
+                                <td>$340K</td>
+                                <td>45%</td>
+                                <td>Lead qualification & nurturing</td>
+                            </tr>
+                            <tr>
+                                <td><strong>IT Operations</strong></td>
+                                <td>$310K</td>
+                                <td>50%</td>
+                                <td>Incident response & monitoring</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Human Resources</strong></td>
+                                <td>$280K</td>
+                                <td>40%</td>
+                                <td>Recruitment & onboarding</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Supply Chain</strong></td>
+                                <td>$260K</td>
+                                <td>35%</td>
+                                <td>Demand forecasting & optimization</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Product Development</strong></td>
+                                <td>$240K</td>
+                                <td>50%</td>
+                                <td>Code review & test automation</td>
+                            </tr>
+                            <tr>
+                                <td><strong>Legal & Compliance</strong></td>
+                                <td>$170K</td>
+                                <td>45%</td>
+                                <td>Contract analysis & review</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+        <!-- Governance & Security -->
+        <section id="governance" class="section">
+            <h2 class="text-center mb-md">Enterprise Governance Framework</h2>
+            <p class="text-center mb-md" style="font-size: 18px; color: var(--text-secondary);">
+                Built-in compliance, security, and control mechanisms ensure enterprise-grade standards
+            </p>
+
+            <div class="governance-grid">
+                <div class="governance-pillar">
+                    <div class="pillar-icon">🔒</div>
+                    <h4>Security & Privacy</h4>
+                    <p style="font-size: var(--font-small); color: var(--text-secondary);">
+                        End-to-end encryption, data sovereignty, role-based access control, and PII protection
+                    </p>
+                    <div class="badge-group" style="justify-content: center; margin-top: var(--space-sm);">
+                        <span class="badge">ISO 27001</span>
+                        <span class="badge">SOC 2</span>
+                        <span class="badge">GDPR</span>
+                    </div>
+                </div>
+
+                <div class="governance-pillar">
+                    <div class="pillar-icon">📊</div>
+                    <h4>Audit & Compliance</h4>
+                    <p style="font-size: var(--font-small); color: var(--text-secondary);">
+                        Complete audit trails, compliance dashboards, automated reporting, and regulatory adherence
+                    </p>
+                    <div class="badge-group" style="justify-content: center; margin-top: var(--space-sm);">
+                        <span class="badge">Audit Trail</span>
+                        <span class="badge">Compliance</span>
+                    </div>
+                </div>
+
+                <div class="governance-pillar">
+                    <div class="pillar-icon">⚡</div>
+                    <h4>Performance & Quality</h4>
+                    <p style="font-size: var(--font-small); color: var(--text-secondary);">
+                        SLA monitoring, quality metrics, A/B testing, and continuous improvement frameworks
+                    </p>
+                    <div class="badge-group" style="justify-content: center; margin-top: var(--space-sm);">
+                        <span class="badge">SLA 99.9%</span>
+                        <span class="badge">Quality</span>
+                    </div>
+                </div>
+
+                <div class="governance-pillar">
+                    <div class="pillar-icon">🎓</div>
+                    <h4>Training & Adoption</h4>
+                    <p style="font-size: var(--font-small); color: var(--text-secondary);">
+                        Comprehensive training programs, change management, and user enablement resources
+                    </p>
+                    <div class="badge-group" style="justify-content: center; margin-top: var(--space-sm);">
+                        <span class="badge">Training</span>
+                        <span class="badge">Support</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="framework-section" style="margin-top: var(--space-lg);">
+                <h3>Agent Development Standards</h3>
+                <div class="grid grid-cols-2" style="margin-top: var(--space-md);">
+                    <div class="card">
+                        <h4 style="color: var(--primary);">Design Principles</h4>
+                        <ul style="margin-left: var(--space-md); color: var(--text-secondary);">
+                            <li>Single responsibility per agent</li>
+                            <li>Clear input/output contracts</li>
+                            <li>Modular, reusable components</li>
+                            <li>Observable and debuggable</li>
+                            <li>Fail-safe error handling</li>
+                        </ul>
+                    </div>
+
+                    <div class="card">
+                        <h4 style="color: var(--primary);">Quality Gates</h4>
+                        <ul style="margin-left: var(--space-md); color: var(--text-secondary);">
+                            <li>Automated testing (unit + integration)</li>
+                            <li>Security scanning and validation</li>
+                            <li>Performance benchmarking</li>
+                            <li>Peer review and approval</li>
+                            <li>Production readiness checklist</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Competitive Advantages -->
+        <section class="section">
+            <h2 class="text-center mb-md">Why Oracle Agent Spec?</h2>
+
+            <div class="grid grid-cols-3">
+                <div class="card">
+                    <h3 style="color: var(--primary);">🌐 Open Standards</h3>
+                    <p>No vendor lock-in. Portable across platforms. Future-proof architecture that adapts to any LLM or framework.</p>
+                </div>
+
+                <div class="card">
+                    <h3 style="color: var(--primary);">🚀 Proven at Scale</h3>
+                    <p>Battle-tested by Oracle and enterprise customers. Production-ready for mission-critical workloads.</p>
+                </div>
+
+                <div class="card">
+                    <h3 style="color: var(--primary);">🔧 Enterprise Ready</h3>
+                    <p>Built-in governance, security, and compliance. Seamless Oracle Cloud integration with world-class support.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Call to Action -->
+        <section class="cta-section">
+            <div class="container">
+                <h2>Ready to Transform Your Organization?</h2>
+                <p style="font-size: 18px; margin-bottom: var(--space-lg); color: white; opacity: 0.95;">
+                    Start building your enterprise AI agent architecture today with Oracle Agent Spec
+                </p>
+                <div class="flex" style="justify-content: center;">
+                    <a href="#" class="btn btn-lg" style="background: white; color: var(--primary);">Schedule Executive Briefing</a>
+                    <a href="https://oracle.github.io/agent-spec" class="btn btn-lg btn-secondary" style="border-color: white; color: white;">View Technical Documentation</a>
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <!-- Footer -->
+    <footer style="background: var(--bg-tertiary); padding: var(--space-lg) 0; margin-top: var(--space-xl); border-top: 1px solid var(--border);">
+        <div class="container">
+            <div class="grid grid-cols-4">
+                <div>
+                    <h4>Resources</h4>
+                    <ul style="list-style: none; margin-top: var(--space-sm);">
+                        <li><a href="https://oracle.github.io/agent-spec" style="color: var(--text-secondary); font-size: var(--font-small);">Agent Spec Documentation</a></li>
+                        <li style="margin-top: 8px;"><a href="README.md" style="color: var(--text-secondary); font-size: var(--font-small);">Implementation Guide</a></li>
+                        <li style="margin-top: 8px;"><a href="agents/" style="color: var(--text-secondary); font-size: var(--font-small);">Agent Templates</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4>Framework</h4>
+                    <ul style="list-style: none; margin-top: var(--space-sm);">
+                        <li><a href="#framework" style="color: var(--text-secondary); font-size: var(--font-small);">Architecture Overview</a></li>
+                        <li style="margin-top: 8px;"><a href="#governance" style="color: var(--text-secondary); font-size: var(--font-small);">Governance Model</a></li>
+                        <li style="margin-top: 8px;"><a href="docs/GETTING_STARTED.md" style="color: var(--text-secondary); font-size: var(--font-small);">Getting Started</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4>Use Cases</h4>
+                    <ul style="list-style: none; margin-top: var(--space-sm);">
+                        <li><a href="#departments" style="color: var(--text-secondary); font-size: var(--font-small);">Department Agents</a></li>
+                        <li style="margin-top: 8px;"><a href="#roi" style="color: var(--text-secondary); font-size: var(--font-small);">ROI Calculator</a></li>
+                        <li style="margin-top: 8px;"><a href="examples/" style="color: var(--text-secondary); font-size: var(--font-small);">Code Examples</a></li>
+                    </ul>
+                </div>
+
+                <div>
+                    <h4>Oracle AI CoE</h4>
+                    <p style="color: var(--text-secondary); font-size: var(--font-small); margin-top: var(--space-sm);">
+                        Building the future of enterprise AI with open standards and proven frameworks.
+                    </p>
+                </div>
+            </div>
+
+            <div style="margin-top: var(--space-lg); padding-top: var(--space-md); border-top: 1px solid var(--border); text-align: center; color: var(--text-tertiary); font-size: var(--font-small);">
+                <p>© 2025 Oracle AI Center of Excellence. Built with Oracle Agent Spec Framework.</p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

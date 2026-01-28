@@ -1,0 +1,31 @@
+# Oracle Agent Spec: Supply Chain Optimizer Agent
+agent:
+  name: "supply-chain-optimizer"
+  version: "1.0.0"
+  description: "Inventory prediction, JIT logistics, and supplier coordination"
+  
+  metadata:
+    industry: "automotive"
+    maturity_level: "silver"
+    
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+      
+  tools:
+    - name: "forecast_demand"
+      type: "mcp_server"
+      mcp_server: "erp-mcp"
+    - name: "optimize_inventory"
+      type: "mcp_server"
+      mcp_server: "erp-mcp"
+    - name: "track_suppliers"
+      type: "mcp_server"
+      mcp_server: "logistics-mcp"
+      
+  mcp_servers:
+    - name: "erp-mcp"
+      endpoint: "${MCP_ERP_ENDPOINT}"
+    - name: "logistics-mcp"
+      endpoint: "${MCP_LOGISTICS_ENDPOINT}"

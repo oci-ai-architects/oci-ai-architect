@@ -1,0 +1,2691 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Oracle AI CoE - Multi-Agent Framework & Configuration Guide</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/yaml.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+
+        .code-font {
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            height: 100vh;
+            width: 280px;
+            background: linear-gradient(180deg, #1e293b 0%, #0f172a 100%);
+            overflow-y: auto;
+            z-index: 50;
+        }
+
+        .main-content {
+            margin-left: 280px;
+            min-height: 100vh;
+        }
+
+        .nav-item {
+            transition: all 0.2s ease;
+            cursor: pointer;
+        }
+
+        .nav-item:hover {
+            background: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid #3b82f6;
+        }
+
+        .nav-item.active {
+            background: rgba(59, 130, 246, 0.2);
+            border-left: 4px solid #3b82f6;
+            font-weight: 600;
+        }
+
+        .code-viewer {
+            background: #1e293b;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .code-header {
+            background: #0f172a;
+            padding: 12px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #334155;
+        }
+
+        .copy-button {
+            background: #3b82f6;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .copy-button:hover {
+            background: #2563eb;
+        }
+
+        pre {
+            margin: 0;
+            padding: 16px;
+            overflow-x: auto;
+        }
+
+        pre code {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        .tab-button {
+            padding: 12px 24px;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-button:hover {
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .tab-button.active {
+            border-bottom-color: #3b82f6;
+            color: #3b82f6;
+            font-weight: 600;
+        }
+
+        .badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .badge-bronze { background: #cd7f32; color: white; }
+        .badge-silver { background: #c0c0c0; color: #1f2937; }
+        .badge-gold { background: #ffd700; color: #1f2937; }
+
+        .file-type-card {
+            border-left: 4px solid;
+            transition: all 0.3s ease;
+        }
+
+        .file-type-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 200px repeat(4, 1fr);
+            gap: 1px;
+            background: #e5e7eb;
+            border: 1px solid #e5e7eb;
+        }
+
+        .comparison-cell {
+            background: white;
+            padding: 12px;
+            min-height: 60px;
+        }
+
+        .comparison-header {
+            background: #f3f4f6;
+            font-weight: 600;
+        }
+
+        .decision-node {
+            background: white;
+            border: 2px solid #3b82f6;
+            border-radius: 8px;
+            padding: 16px;
+            position: relative;
+        }
+
+        .decision-arrow {
+            text-align: center;
+            padding: 8px 0;
+            font-size: 24px;
+            color: #3b82f6;
+        }
+    </style>
+</head>
+<body class="bg-gray-50" x-data="agentFramework()">
+
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="p-6 border-b border-gray-700">
+            <h1 class="text-white text-xl font-bold mb-1">Oracle AI CoE</h1>
+            <p class="text-gray-400 text-sm">Agent Framework Guide</p>
+        </div>
+
+        <nav class="py-4">
+            <div class="nav-item px-6 py-3 text-gray-300"
+                 :class="{'active text-white': currentView === 'dashboard'}"
+                 @click="currentView = 'dashboard'">
+                <div class="flex items-center">
+                    <span class="mr-3">📊</span>
+                    <span>Dashboard</span>
+                </div>
+            </div>
+
+            <div class="nav-item px-6 py-3 text-gray-300"
+                 :class="{'active text-white': currentView === 'getting-started'}"
+                 @click="currentView = 'getting-started'">
+                <div class="flex items-center">
+                    <span class="mr-3">🚀</span>
+                    <span>Getting Started</span>
+                </div>
+            </div>
+
+            <div class="nav-item px-6 py-3 text-gray-300"
+                 :class="{'active text-white': currentView === 'industries'}"
+                 @click="currentView = 'industries'">
+                <div class="flex items-center">
+                    <span class="mr-3">🏭</span>
+                    <span>Industry Explorer</span>
+                </div>
+            </div>
+
+            <div class="nav-item px-6 py-3 text-gray-300"
+                 :class="{'active text-white': currentView === 'agent-explorer'}"
+                 @click="currentView = 'agent-explorer'">
+                <div class="flex items-center">
+                    <span class="mr-3">🤖</span>
+                    <span>Agent Explorer</span>
+                </div>
+            </div>
+
+            <div class="nav-item px-6 py-3 text-gray-300"
+                 :class="{'active text-white': currentView === 'agent-teams'}"
+                 @click="currentView = 'agent-teams'">
+                <div class="flex items-center">
+                    <span class="mr-3">👥</span>
+                    <span>Agent Teams & Orchestration</span>
+                </div>
+            </div>
+
+            <div class="nav-item px-6 py-3 text-gray-300"
+                 :class="{'active text-white': currentView === 'implementation'}"
+                 @click="currentView = 'implementation'">
+                <div class="flex items-center">
+                    <span class="mr-3">🏗️</span>
+                    <span>Implementation Guide</span>
+                </div>
+            </div>
+
+            <div class="nav-item px-6 py-3 text-gray-300"
+                 :class="{'active text-white': currentView === 'mcp-infrastructure'}"
+                 @click="currentView = 'mcp-infrastructure'">
+                <div class="flex items-center">
+                    <span class="mr-3">🔌</span>
+                    <span>MCP Infrastructure</span>
+                </div>
+            </div>
+
+            <div class="nav-item px-6 py-3 text-gray-300"
+                 :class="{'active text-white': currentView === 'decision-framework'}"
+                 @click="currentView = 'decision-framework'">
+                <div class="flex items-center">
+                    <span class="mr-3">🎯</span>
+                    <span>Decision Framework</span>
+                </div>
+            </div>
+
+            <div class="nav-item px-6 py-3 text-gray-300"
+                 :class="{'active text-white': currentView === 'config-builder'}"
+                 @click="currentView = 'config-builder'">
+                <div class="flex items-center">
+                    <span class="mr-3">⚙️</span>
+                    <span>Config Builder</span>
+                </div>
+            </div>
+
+            <div class="nav-item px-6 py-3 text-gray-300"
+                 :class="{'active text-white': currentView === 'roi-calculator'}"
+                 @click="currentView = 'roi-calculator'">
+                <div class="flex items-center">
+                    <span class="mr-3">💰</span>
+                    <span>ROI Calculator</span>
+                </div>
+            </div>
+
+            <div class="nav-item px-6 py-3 text-gray-300"
+                 :class="{'active text-white': currentView === 'comparison'}"
+                 @click="currentView = 'comparison'">
+                <div class="flex items-center">
+                    <span class="mr-3">📋</span>
+                    <span>Comparison Tool</span>
+                </div>
+            </div>
+
+            <div class="nav-item px-6 py-3 text-gray-300"
+                 :class="{'active text-white': currentView === 'export'}"
+                 @click="currentView = 'export'">
+                <div class="flex items-center">
+                    <span class="mr-3">📦</span>
+                    <span>Export Generator</span>
+                </div>
+            </div>
+        </nav>
+
+        <div class="absolute bottom-0 left-0 right-0 p-6 border-t border-gray-700">
+            <p class="text-gray-500 text-xs">Version 1.0.0</p>
+            <p class="text-gray-600 text-xs">Last Updated: Jan 2025</p>
+        </div>
+    </aside>
+
+    <!-- Main Content Area -->
+    <main class="main-content">
+
+        <!-- Header -->
+        <header class="bg-white border-b border-gray-200 sticky top-0 z-40 shadow-sm">
+            <div class="px-8 py-4">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-2xl font-bold text-gray-800" x-text="getViewTitle()"></h2>
+                        <p class="text-sm text-gray-600 mt-1" x-text="getViewDescription()"></p>
+                    </div>
+                    <div class="flex items-center space-x-4">
+                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                            <span x-text="getTotalAgents()"></span> Agents
+                        </span>
+                        <span class="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+                            <span x-text="getTotalMCPServers()"></span> MCP Servers
+                        </span>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Content Container -->
+        <div class="px-8 py-8">
+
+            <!-- Dashboard View -->
+            <div x-show="currentView === 'dashboard'" class="space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg shadow-lg p-6">
+                        <div class="text-4xl font-bold mb-2">15</div>
+                        <div class="text-blue-100 text-lg font-semibold">Production Agents</div>
+                        <div class="text-blue-200 text-sm mt-2">5 per industry • Oracle Agent Spec</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-green-500 to-green-600 text-white rounded-lg shadow-lg p-6">
+                        <div class="text-4xl font-bold mb-2">27</div>
+                        <div class="text-green-100 text-lg font-semibold">MCP Servers</div>
+                        <div class="text-green-200 text-sm mt-2">Real-time data integrations</div>
+                    </div>
+                    <div class="bg-gradient-to-br from-purple-500 to-purple-600 text-white rounded-lg shadow-lg p-6">
+                        <div class="text-4xl font-bold mb-2">3</div>
+                        <div class="text-purple-100 text-lg font-semibold">Industries Covered</div>
+                        <div class="text-purple-200 text-sm mt-2">Marketing • Auto • Web3</div>
+                    </div>
+                </div>
+
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">Framework Quick Navigation</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <button @click="currentView = 'getting-started'"
+                                class="text-left p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
+                            <div class="font-semibold text-gray-800 mb-1">🚀 New to the Framework?</div>
+                            <div class="text-sm text-gray-600">Learn about file types and when to use each</div>
+                        </button>
+                        <button @click="currentView = 'agent-explorer'"
+                                class="text-left p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
+                            <div class="font-semibold text-gray-800 mb-1">🤖 Explore Agents</div>
+                            <div class="text-sm text-gray-600">View specifications and configuration code</div>
+                        </button>
+                        <button @click="currentView = 'config-builder'"
+                                class="text-left p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
+                            <div class="font-semibold text-gray-800 mb-1">⚙️ Build Your Config</div>
+                            <div class="text-sm text-gray-600">Generate agent specifications for your use case</div>
+                        </button>
+                        <button @click="currentView = 'decision-framework'"
+                                class="text-left p-4 border-2 border-gray-200 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition">
+                            <div class="font-semibold text-gray-800 mb-1">🎯 Decision Guide</div>
+                            <div class="text-sm text-gray-600">Agent Spec vs Claude .md vs Workflows</div>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg shadow-lg p-8 border border-blue-200">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">What Makes This Framework Different?</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold mr-3">1</div>
+                            <div>
+                                <div class="font-semibold text-gray-800">Oracle Agent Spec Standard</div>
+                                <div class="text-sm text-gray-600">Platform-agnostic, portable agent definitions in YAML/JSON</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold mr-3">2</div>
+                            <div>
+                                <div class="font-semibold text-gray-800">Clear Technology Separation</div>
+                                <div class="text-sm text-gray-600">Know when to use Agent Spec, Claude .md, Workflows, or MCP</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold mr-3">3</div>
+                            <div>
+                                <div class="font-semibold text-gray-800">Industry-Specific Templates</div>
+                                <div class="text-sm text-gray-600">Pre-built agent teams for Marketing, Automotive, Web3</div>
+                            </div>
+                        </div>
+                        <div class="flex items-start">
+                            <div class="flex-shrink-0 w-8 h-8 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold mr-3">4</div>
+                            <div>
+                                <div class="font-semibold text-gray-800">MCP Integration Layer</div>
+                                <div class="text-sm text-gray-600">120+ data source connectors via Confluent</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Getting Started View -->
+            <div x-show="currentView === 'getting-started'" class="space-y-6">
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Understanding the Four Technology Types</h3>
+
+                    <div class="space-y-6">
+                        <!-- Agent Spec -->
+                        <div class="file-type-card bg-gradient-to-r from-blue-50 to-blue-100 p-6 rounded-lg border-blue-500">
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <h4 class="text-xl font-bold text-blue-900 mb-2">📋 Oracle Agent Spec (YAML/JSON)</h4>
+                                    <p class="text-blue-800 font-medium">For: Production multi-agent systems</p>
+                                </div>
+                                <span class="code-font text-xs bg-blue-200 text-blue-900 px-3 py-1 rounded">agent-spec/*.yaml</span>
+                            </div>
+
+                            <div class="mb-4">
+                                <p class="text-gray-700 font-semibold mb-2">Use When:</p>
+                                <ul class="list-disc list-inside text-gray-700 space-y-1 text-sm">
+                                    <li>Building production multi-agent systems that run 24/7</li>
+                                    <li>Need platform-agnostic deployment (AutoGen, LangGraph, WayFlow)</li>
+                                    <li>Coordinating multiple agents (orchestrator patterns)</li>
+                                    <li>Enterprise governance, auditing, security required</li>
+                                    <li>Long-running autonomous operations</li>
+                                </ul>
+                            </div>
+
+                            <div class="code-viewer">
+                                <div class="code-header">
+                                    <span class="text-gray-300 text-sm code-font">Example: content-strategist.yaml</span>
+                                    <button class="copy-button" @click="copyCode('agentSpec')">Copy</button>
+                                </div>
+                                <pre><code class="yaml" id="agentSpec">agent:
+  name: "content-strategist"
+  version: "1.0.0"
+  description: "AI agent for market trend analysis and content calendar management"
+
+  metadata:
+    industry: "creative-marketing"
+    maturity_level: "bronze"
+    autonomous_level: "high"
+
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+      temperature: 0.3
+
+  tools:
+    - name: "analyze_trending_topics"
+      type: "mcp_server"
+      mcp_server: "analytics-mcp"
+      description: "Analyze trending topics from social media and search data"
+
+    - name: "generate_content_calendar"
+      type: "mcp_server"
+      mcp_server: "content-management-mcp"
+
+  mcp_servers:
+    - name: "analytics-mcp"
+      endpoint: "${MCP_ANALYTICS_ENDPOINT}"
+      authentication:
+        type: "oauth2"
+        scopes: ["read:analytics"]
+
+  workflows:
+    - name: "daily_trend_analysis"
+      schedule: "0 9 * * *"  # Daily at 9 AM
+      steps:
+        - analyze_trending_topics
+        - generate_content_calendar
+
+  governance:
+    approval_required:
+      - "publish_content"
+    audit_all_actions: true</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- Claude agent.md -->
+                        <div class="file-type-card bg-gradient-to-r from-green-50 to-green-100 p-6 rounded-lg border-green-500">
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <h4 class="text-xl font-bold text-green-900 mb-2">🔨 Claude agent.md Files</h4>
+                                    <p class="text-green-800 font-medium">For: Development-time coding assistance</p>
+                                </div>
+                                <span class="code-font text-xs bg-green-200 text-green-900 px-3 py-1 rounded">agents/claude/*.md</span>
+                            </div>
+
+                            <div class="mb-4">
+                                <p class="text-gray-700 font-semibold mb-2">Use When:</p>
+                                <ul class="list-disc list-inside text-gray-700 space-y-1 text-sm">
+                                    <li>Development-time coding assistance (NOT production agents)</li>
+                                    <li>Building/debugging software, code reviews, refactoring</li>
+                                    <li>Prototyping before implementing Agent Spec</li>
+                                    <li>IDE-integrated development workflows</li>
+                                    <li>One-off coding tasks</li>
+                                </ul>
+                            </div>
+
+                            <div class="code-viewer">
+                                <div class="code-header">
+                                    <span class="text-gray-300 text-sm code-font">Example: frontend-specialist.md</span>
+                                    <button class="copy-button" @click="copyCode('claudeMd')">Copy</button>
+                                </div>
+                                <pre><code class="markdown" id="claudeMd"># Claude Code Agent: Frontend Marketing Dashboard Specialist
+
+## Purpose
+Assist developers building React/Next.js dashboards for marketing analytics.
+
+## Specialization
+- React component architecture with TypeScript
+- Next.js 14+ (App Router, Server Components)
+- Data visualization (Chart.js, Recharts)
+- Integration with marketing APIs (Google Analytics 4, HubSpot)
+- Real-time dashboard updates
+
+## Technologies
+- React 18+, Next.js 14+
+- TypeScript
+- Tailwind CSS
+- React Query for data fetching
+- Zustand for state management
+
+## Example Tasks
+1. "Build a responsive analytics dashboard component"
+2. "Integrate Google Analytics 4 API for real-time metrics"
+3. "Create a campaign performance chart with Recharts"
+4. "Implement server-side rendering for SEO metrics page"
+
+## Context Awareness
+- Understands marketing KPIs (CTR, ROAS, engagement rate)
+- Familiar with GA4 data structure
+- Can suggest optimal chart types for different metrics</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- Workflow YAML -->
+                        <div class="file-type-card bg-gradient-to-r from-purple-50 to-purple-100 p-6 rounded-lg border-purple-500">
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <h4 class="text-xl font-bold text-purple-900 mb-2">⚙️ Workflow Automations (YAML)</h4>
+                                    <p class="text-purple-800 font-medium">For: Deterministic business processes</p>
+                                </div>
+                                <span class="code-font text-xs bg-purple-200 text-purple-900 px-3 py-1 rounded">workflows/*.yaml</span>
+                            </div>
+
+                            <div class="mb-4">
+                                <p class="text-gray-700 font-semibold mb-2">Use When:</p>
+                                <ul class="list-disc list-inside text-gray-700 space-y-1 text-sm">
+                                    <li>Deterministic, rule-based processes (no AI decision-making)</li>
+                                    <li>Human approval gates required</li>
+                                    <li>Sequential/parallel task orchestration</li>
+                                    <li>Integration with business process automation tools</li>
+                                    <li>Clear if/then logic without AI reasoning</li>
+                                </ul>
+                            </div>
+
+                            <div class="code-viewer">
+                                <div class="code-header">
+                                    <span class="text-gray-300 text-sm code-font">Example: campaign-launch.yaml</span>
+                                    <button class="copy-button" @click="copyCode('workflowYaml')">Copy</button>
+                                </div>
+                                <pre><code class="yaml" id="workflowYaml">workflow:
+  name: "campaign-launch"
+  version: "1.0.0"
+  description: "Multi-channel marketing campaign launch automation"
+
+  trigger:
+    type: "manual"
+    approver_role: "marketing_manager"
+
+  steps:
+    - id: "content_generation"
+      agent: "content-strategist"
+      action: "generate_campaign_content"
+      parameters:
+        campaign_id: "${workflow.input.campaign_id}"
+      timeout: "5m"
+
+    - id: "human_review"
+      type: "human_approval"
+      approver_role: "creative_director"
+      notification_channels: ["email", "slack"]
+      timeout: "24h"
+
+    - id: "schedule_posts"
+      condition: "approved"
+      agent: "social-media-manager"
+      action: "schedule_social_posts"
+      parallel:
+        - platform: "twitter"
+        - platform: "linkedin"
+        - platform: "facebook"
+
+    - id: "launch_ads"
+      agent: "campaign-orchestrator"
+      action: "activate_ad_campaigns"
+      requires: ["schedule_posts"]
+
+    - id: "monitor_performance"
+      agent: "analytics-agent"
+      action: "track_campaign_metrics"
+      duration: "7d"
+      alerts:
+        - metric: "ctr"
+          threshold: "< 1.5%"
+          action: "notify_manager"</code></pre>
+                            </div>
+                        </div>
+
+                        <!-- MCP Servers -->
+                        <div class="file-type-card bg-gradient-to-r from-orange-50 to-orange-100 p-6 rounded-lg border-orange-500">
+                            <div class="flex items-start justify-between mb-4">
+                                <div>
+                                    <h4 class="text-xl font-bold text-orange-900 mb-2">🔌 MCP Servers</h4>
+                                    <p class="text-orange-800 font-medium">For: Data source & tool integration</p>
+                                </div>
+                                <span class="code-font text-xs bg-orange-200 text-orange-900 px-3 py-1 rounded">mcp-servers.md</span>
+                            </div>
+
+                            <div class="mb-4">
+                                <p class="text-gray-700 font-semibold mb-2">Use When:</p>
+                                <ul class="list-disc list-inside text-gray-700 space-y-1 text-sm">
+                                    <li>Connecting agents to external data sources</li>
+                                    <li>Tool/API integration (databases, SaaS platforms)</li>
+                                    <li>Real-time data access required</li>
+                                    <li>Security/permission management needed</li>
+                                    <li>Standardized integration across multiple agents</li>
+                                </ul>
+                            </div>
+
+                            <div class="code-viewer">
+                                <div class="code-header">
+                                    <span class="text-gray-300 text-sm code-font">Example: MCP Server Configuration</span>
+                                    <button class="copy-button" @click="copyCode('mcpConfig')">Copy</button>
+                                </div>
+                                <pre><code class="markdown" id="mcpConfig"># MCP Server: analytics-mcp
+
+## Description
+Google Analytics 4 and Adobe Analytics integration server
+
+## Data Flow Pattern
+Real-time streaming + hourly batch aggregation
+
+## Endpoints
+- `GET /metrics/realtime` - Real-time active users, page views
+- `GET /metrics/campaigns` - Campaign performance data
+- `POST /reports/custom` - Generate custom analytics reports
+
+## Authentication
+- Type: OAuth 2.0
+- Scopes: `analytics.readonly`, `analytics.edit`
+- Token refresh: Automatic
+
+## Data Sources
+- Google Analytics 4 API
+- Adobe Analytics 2.0 API
+- Custom event tracking via GA4 Measurement Protocol
+
+## Usage Example (in Agent Spec)
+```yaml
+mcp_servers:
+  - name: "analytics-mcp"
+    endpoint: "${MCP_ANALYTICS_ENDPOINT}"
+    authentication:
+      type: "oauth2"
+      client_id: "${ANALYTICS_CLIENT_ID}"
+      client_secret: "${ANALYTICS_CLIENT_SECRET}"
+      scopes: ["analytics.readonly"]
+
+    retry_policy:
+      max_attempts: 3
+      backoff: "exponential"
+
+    rate_limiting:
+      requests_per_minute: 60
+```
+
+## Confluent Integration
+Available as pre-built connector: `google-analytics-4-source`</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Decision Tree -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-xl font-bold text-gray-800 mb-6">Quick Decision Tree</h3>
+                    <div class="space-y-4">
+                        <div class="decision-node">
+                            <div class="font-semibold text-gray-800 mb-2">Are you building a production agent system?</div>
+                            <div class="flex space-x-4">
+                                <div class="flex-1 bg-green-50 border-2 border-green-500 rounded p-3">
+                                    <div class="font-semibold text-green-900">YES</div>
+                                    <div class="text-sm text-gray-700 mt-1">→ Use Oracle Agent Spec YAML</div>
+                                </div>
+                                <div class="flex-1 bg-gray-50 border-2 border-gray-300 rounded p-3">
+                                    <div class="font-semibold text-gray-900">NO - Just coding help</div>
+                                    <div class="text-sm text-gray-700 mt-1">→ Use Claude agent.md</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="decision-arrow">↓</div>
+
+                        <div class="decision-node">
+                            <div class="font-semibold text-gray-800 mb-2">Does your process need AI decision-making?</div>
+                            <div class="flex space-x-4">
+                                <div class="flex-1 bg-green-50 border-2 border-green-500 rounded p-3">
+                                    <div class="font-semibold text-green-900">YES</div>
+                                    <div class="text-sm text-gray-700 mt-1">→ Define in Agent Spec with tools</div>
+                                </div>
+                                <div class="flex-1 bg-purple-50 border-2 border-purple-500 rounded p-3">
+                                    <div class="font-semibold text-purple-900">NO - Just orchestration</div>
+                                    <div class="text-sm text-gray-700 mt-1">→ Use Workflow YAML</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="decision-arrow">↓</div>
+
+                        <div class="decision-node">
+                            <div class="font-semibold text-gray-800 mb-2">Does the agent need external data/tools?</div>
+                            <div class="flex space-x-4">
+                                <div class="flex-1 bg-orange-50 border-2 border-orange-500 rounded p-3">
+                                    <div class="font-semibold text-orange-900">YES</div>
+                                    <div class="text-sm text-gray-700 mt-1">→ Configure MCP servers</div>
+                                </div>
+                                <div class="flex-1 bg-gray-50 border-2 border-gray-300 rounded p-3">
+                                    <div class="font-semibold text-gray-900">NO</div>
+                                    <div class="text-sm text-gray-700 mt-1">→ Agent can work standalone</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agent Explorer View -->
+            <div x-show="currentView === 'agent-explorer'" class="space-y-6">
+                <!-- Industry Selector -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <div class="flex items-center justify-between mb-4">
+                        <h3 class="text-xl font-bold text-gray-800">Select Industry</h3>
+                        <div class="text-sm text-gray-600">
+                            Click an industry to explore its agents
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <button @click="selectedIndustry = 'creative-marketing'"
+                                :class="selectedIndustry === 'creative-marketing' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                                class="py-4 px-6 rounded-lg font-semibold transition">
+                            🎨 Creative/Marketing
+                        </button>
+                        <button @click="selectedIndustry = 'automotive'"
+                                :class="selectedIndustry === 'automotive' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                                class="py-4 px-6 rounded-lg font-semibold transition">
+                            🚗 Automotive
+                        </button>
+                        <button @click="selectedIndustry = 'web3'"
+                                :class="selectedIndustry === 'web3' ? 'bg-blue-600 text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                                class="py-4 px-6 rounded-lg font-semibold transition">
+                            🔗 Web3
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Agent List -->
+                <div class="bg-white rounded-lg shadow-lg p-6">
+                    <h3 class="text-xl font-bold text-gray-800 mb-4">
+                        <span x-text="getIndustryData()?.name"></span> Agents
+                    </h3>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <template x-for="agent in getIndustryData()?.agents" :key="agent.id">
+                            <button @click="selectedAgent = agent.id"
+                                    :class="selectedAgent === agent.id ? 'border-blue-500 bg-blue-50' : 'border-gray-200'"
+                                    class="text-left p-4 border-2 rounded-lg hover:border-blue-500 transition">
+                                <div class="flex items-start justify-between mb-2">
+                                    <div class="font-semibold text-gray-800" x-text="agent.name"></div>
+                                    <span class="badge" :class="'badge-' + agent.maturityLevel" x-text="agent.maturityLevel"></span>
+                                </div>
+                                <div class="text-sm text-gray-600" x-text="agent.role"></div>
+                                <div class="mt-2 text-xs text-gray-500">
+                                    <span x-text="agent.mcpServers.length"></span> MCP servers •
+                                    <span x-text="agent.autonomyLevel"></span> autonomy
+                                </div>
+                            </button>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Agent Details with Tabs -->
+                <div x-show="selectedAgent" class="bg-white rounded-lg shadow-lg overflow-hidden">
+                    <div class="border-b border-gray-200">
+                        <div class="flex">
+                            <button @click="agentTab = 'overview'"
+                                    :class="agentTab === 'overview' ? 'active' : ''"
+                                    class="tab-button">
+                                Overview
+                            </button>
+                            <button @click="agentTab = 'spec'"
+                                    :class="agentTab === 'spec' ? 'active' : ''"
+                                    class="tab-button">
+                                Agent Spec YAML
+                            </button>
+                            <button @click="agentTab = 'architecture'"
+                                    :class="agentTab === 'architecture' ? 'active' : ''"
+                                    class="tab-button">
+                                Architecture
+                            </button>
+                            <button @click="agentTab = 'integration'"
+                                    :class="agentTab === 'integration' ? 'active' : ''"
+                                    class="tab-button">
+                                MCP Integration
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="p-8">
+                        <!-- Overview Tab -->
+                        <div x-show="agentTab === 'overview'" class="space-y-6">
+                            <div>
+                                <h3 class="text-2xl font-bold text-gray-800 mb-2" x-text="getSelectedAgent()?.name"></h3>
+                                <p class="text-gray-600 text-lg" x-text="getSelectedAgent()?.role"></p>
+                            </div>
+
+                            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <div class="text-sm text-gray-600 mb-1">Maturity Level</div>
+                                    <div class="flex items-center">
+                                        <span class="badge mr-2" :class="'badge-' + getSelectedAgent()?.maturityLevel"
+                                              x-text="getSelectedAgent()?.maturityLevel"></span>
+                                    </div>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <div class="text-sm text-gray-600 mb-1">Autonomy Level</div>
+                                    <div class="text-lg font-semibold text-gray-800" x-text="getSelectedAgent()?.autonomyLevel"></div>
+                                </div>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <div class="text-sm text-gray-600 mb-1">MCP Servers</div>
+                                    <div class="text-lg font-semibold text-gray-800" x-text="getSelectedAgent()?.mcpServers.length"></div>
+                                </div>
+                            </div>
+
+                            <div class="bg-gradient-to-r from-green-50 to-emerald-50 border border-green-200 rounded-lg p-6">
+                                <h4 class="font-bold text-gray-800 mb-3">Business Impact</h4>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div>
+                                        <div class="text-sm text-gray-600">Primary KPI</div>
+                                        <div class="text-lg font-semibold text-gray-800" x-text="getSelectedAgent()?.businessImpact.primaryKPI"></div>
+                                    </div>
+                                    <div>
+                                        <div class="text-sm text-gray-600">Target Improvement</div>
+                                        <div class="text-lg font-semibold text-green-600"
+                                             x-text="getSelectedAgent()?.businessImpact.targetImprovement || getSelectedAgent()?.businessImpact.target"></div>
+                                    </div>
+                                    <div x-show="getSelectedAgent()?.businessImpact.timeSavings">
+                                        <div class="text-sm text-gray-600">Time Savings</div>
+                                        <div class="text-lg font-semibold text-gray-800" x-text="getSelectedAgent()?.businessImpact.timeSavings"></div>
+                                    </div>
+                                    <div x-show="getSelectedAgent()?.businessImpact.costSavings">
+                                        <div class="text-sm text-gray-600">Cost Savings</div>
+                                        <div class="text-lg font-semibold text-gray-800" x-text="getSelectedAgent()?.businessImpact.costSavings"></div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="font-bold text-gray-800 mb-3">Interacts With</h4>
+                                <div class="flex flex-wrap gap-2">
+                                    <template x-for="agentId in getSelectedAgent()?.interactsWith" :key="agentId">
+                                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm" x-text="agentId"></span>
+                                    </template>
+                                    <span x-show="getSelectedAgent()?.interactsWith.length === 0" class="text-gray-500 text-sm">
+                                        Independent agent (no direct interactions)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <div>
+                                <h4 class="font-bold text-gray-800 mb-3">Data Processing Pattern</h4>
+                                <div class="bg-gray-50 p-4 rounded-lg">
+                                    <p class="text-gray-700" x-text="getSelectedAgent()?.dataProcessing"></p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Agent Spec YAML Tab -->
+                        <div x-show="agentTab === 'spec'">
+                            <div class="mb-4">
+                                <h4 class="font-bold text-gray-800 mb-2">Complete Oracle Agent Spec Configuration</h4>
+                                <p class="text-sm text-gray-600">Copy this YAML to create your own agent based on this template</p>
+                            </div>
+                            <div class="code-viewer">
+                                <div class="code-header">
+                                    <span class="text-gray-300 text-sm code-font" x-text="selectedAgent + '.yaml'"></span>
+                                    <button class="copy-button" @click="copyCode('fullAgentSpec')">Copy Full Spec</button>
+                                </div>
+                                <pre><code class="yaml" id="fullAgentSpec" x-text="generateFullAgentSpec()"></code></pre>
+                            </div>
+                        </div>
+
+                        <!-- Architecture Tab -->
+                        <div x-show="agentTab === 'architecture'">
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="font-bold text-gray-800 mb-3">Agent Communication Pattern</h4>
+                                    <div class="bg-gray-50 p-6 rounded-lg">
+                                        <template x-if="getSelectedAgent()?.interactsWith.length > 0">
+                                            <div>
+                                                <p class="text-gray-700 mb-4">This agent collaborates with other agents in an orchestrator-worker pattern:</p>
+                                                <div class="space-y-2">
+                                                    <template x-for="agentId in getSelectedAgent()?.interactsWith" :key="agentId">
+                                                        <div class="flex items-center p-3 bg-white rounded border border-gray-200">
+                                                            <div class="w-3 h-3 bg-blue-500 rounded-full mr-3"></div>
+                                                            <span class="font-medium text-gray-800" x-text="agentId"></span>
+                                                        </div>
+                                                    </template>
+                                                </div>
+                                            </div>
+                                        </template>
+                                        <template x-if="getSelectedAgent()?.interactsWith.length === 0">
+                                            <p class="text-gray-700">This agent operates independently without direct inter-agent communication.</p>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-bold text-gray-800 mb-3">Deployment Considerations</h4>
+                                    <div class="space-y-2">
+                                        <div class="flex items-start p-3 bg-blue-50 rounded">
+                                            <div class="text-blue-600 mr-3">💡</div>
+                                            <div>
+                                                <div class="font-semibold text-gray-800">Model Selection</div>
+                                                <div class="text-sm text-gray-600">Recommended: Claude Sonnet 4.5 for balance of speed and intelligence</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start p-3 bg-green-50 rounded">
+                                            <div class="text-green-600 mr-3">🔒</div>
+                                            <div>
+                                                <div class="font-semibold text-gray-800">Security</div>
+                                                <div class="text-sm text-gray-600">Configure OAuth 2.0 for all MCP servers with least-privilege access</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start p-3 bg-purple-50 rounded">
+                                            <div class="text-purple-600 mr-3">📊</div>
+                                            <div>
+                                                <div class="font-semibold text-gray-800">Monitoring</div>
+                                                <div class="text-sm text-gray-600">Enable audit trails and set up alerts for KPI thresholds</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- MCP Integration Tab -->
+                        <div x-show="agentTab === 'integration'">
+                            <div class="space-y-6">
+                                <div>
+                                    <h4 class="font-bold text-gray-800 mb-3">Connected MCP Servers</h4>
+                                    <p class="text-sm text-gray-600 mb-4">This agent connects to the following data sources and tools:</p>
+
+                                    <div class="space-y-3">
+                                        <template x-for="mcpServer in getSelectedAgent()?.mcpServers" :key="mcpServer">
+                                            <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
+                                                <div class="flex items-start justify-between">
+                                                    <div class="flex-1">
+                                                        <div class="font-semibold text-gray-800 mb-1" x-text="mcpServer"></div>
+                                                        <div class="text-sm text-gray-600" x-text="getMCPServerDescription(mcpServer)"></div>
+                                                    </div>
+                                                    <div class="ml-4">
+                                                        <span class="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium"
+                                                              x-text="getMCPServerDataFlow(mcpServer)"></span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </template>
+                                    </div>
+                                </div>
+
+                                <div>
+                                    <h4 class="font-bold text-gray-800 mb-3">Integration Code Example</h4>
+                                    <p class="text-sm text-gray-600 mb-4">How to configure MCP servers in your Agent Spec:</p>
+
+                                    <div class="code-viewer">
+                                        <div class="code-header">
+                                            <span class="text-gray-300 text-sm code-font">MCP Configuration</span>
+                                            <button class="copy-button" @click="copyCode('mcpIntegration')">Copy</button>
+                                        </div>
+                                        <pre><code class="yaml" id="mcpIntegration" x-text="generateMCPIntegrationCode()"></code></pre>
+                                    </div>
+                                </div>
+
+                                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                    <div class="flex items-start">
+                                        <div class="text-yellow-600 text-xl mr-3">⚠️</div>
+                                        <div>
+                                            <div class="font-semibold text-gray-800 mb-1">Environment Variables Required</div>
+                                            <div class="text-sm text-gray-700">
+                                                Make sure to configure these environment variables before deployment:
+                                                <ul class="list-disc list-inside mt-2 space-y-1 code-font text-xs">
+                                                    <template x-for="mcpServer in getSelectedAgent()?.mcpServers" :key="mcpServer">
+                                                        <li x-text="'MCP_' + mcpServer.toUpperCase().replace(/-/g, '_') + '_ENDPOINT'"></li>
+                                                    </template>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Agent Teams & Orchestration View -->
+            <div x-show="currentView === 'agent-teams'" class="space-y-8">
+
+                <!-- Multi-Agent Orchestration Patterns -->
+                <div class="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-lg p-6 border border-purple-200">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">🎭 Multi-Agent Orchestration Patterns</h3>
+                    <p class="text-gray-700 mb-6">
+                        Production multi-agent systems use sophisticated orchestration patterns where agents collaborate
+                        to achieve complex business outcomes. Each pattern serves specific use cases and team dynamics.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <!-- Sequential Chain Pattern -->
+                        <div class="bg-white rounded-lg p-6 border-l-4 border-blue-500">
+                            <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                                <span class="text-2xl mr-2">🔗</span> Sequential Chain
+                            </h4>
+                            <p class="text-sm text-gray-600 mb-4">
+                                Agents execute in sequence, passing results to the next agent. Best for workflows
+                                with clear dependencies (e.g., audit → review → deploy).
+                            </p>
+                            <div class="bg-gray-50 rounded p-3 code-font text-xs">
+                                Agent A → Agent B → Agent C → Result
+                            </div>
+                            <div class="mt-3 text-sm text-gray-700">
+                                <strong>Example:</strong> Smart Contract Deployment
+                                <div class="ml-4 mt-1">
+                                    1. Auditor analyzes code<br>
+                                    2. Security Monitor validates<br>
+                                    3. DeFi Analyst estimates gas<br>
+                                    4. Deployment to testnet
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Parallel Pattern -->
+                        <div class="bg-white rounded-lg p-6 border-l-4 border-green-500">
+                            <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                                <span class="text-2xl mr-2">⚡</span> Parallel Processing
+                            </h4>
+                            <p class="text-sm text-gray-600 mb-4">
+                                Multiple agents work simultaneously on different aspects of a problem,
+                                then results are merged. Optimizes for speed.
+                            </p>
+                            <div class="bg-gray-50 rounded p-3 code-font text-xs">
+                                ┌→ Agent A →┐<br>
+                                │  Agent B  │→ Merge → Result<br>
+                                └→ Agent C →┘
+                            </div>
+                            <div class="mt-3 text-sm text-gray-700">
+                                <strong>Example:</strong> Campaign Launch
+                                <div class="ml-4 mt-1">
+                                    • Content Strategist: Creates posts<br>
+                                    • SEO Optimizer: Optimizes keywords<br>
+                                    • Social Media Manager: Schedules<br>
+                                    → Campaign Orchestrator merges
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Orchestrator Pattern -->
+                        <div class="bg-white rounded-lg p-6 border-l-4 border-purple-500">
+                            <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                                <span class="text-2xl mr-2">🎯</span> Orchestrator-Worker
+                            </h4>
+                            <p class="text-sm text-gray-600 mb-4">
+                                A central orchestrator agent coordinates and delegates tasks to specialized workers,
+                                then aggregates results. Best for complex multi-step processes.
+                            </p>
+                            <div class="bg-gray-50 rounded p-3 code-font text-xs">
+                                        Orchestrator<br>
+                                       ↙    ↓    ↘<br>
+                                  Worker1 Worker2 Worker3<br>
+                                       ↘    ↓    ↙<br>
+                                        Orchestrator
+                            </div>
+                            <div class="mt-3 text-sm text-gray-700">
+                                <strong>Example:</strong> Quality Control
+                                <div class="ml-4 mt-1">
+                                    QC Agent orchestrates:<br>
+                                    • Visual Inspection Worker<br>
+                                    • Measurement Worker<br>
+                                    • Defect Classification Worker
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Event-Driven Pattern -->
+                        <div class="bg-white rounded-lg p-6 border-l-4 border-orange-500">
+                            <h4 class="text-lg font-bold text-gray-800 mb-3 flex items-center">
+                                <span class="text-2xl mr-2">📡</span> Event-Driven
+                            </h4>
+                            <p class="text-sm text-gray-600 mb-4">
+                                Agents react to events asynchronously. Agents subscribe to event streams
+                                and trigger actions based on specific conditions.
+                            </p>
+                            <div class="bg-gray-50 rounded p-3 code-font text-xs">
+                                Event Bus → Agent subscribes → Trigger action
+                            </div>
+                            <div class="mt-3 text-sm text-gray-700">
+                                <strong>Example:</strong> Security Monitoring
+                                <div class="ml-4 mt-1">
+                                    Blockchain events → Security Monitor<br>
+                                    • Flash loan detected<br>
+                                    • Contract interaction anomaly<br>
+                                    → Alert + Circuit breaker
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Industry-Specific Team Examples -->
+                <template x-for="(industry, key) in config?.industries" :key="key">
+                    <div class="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
+                        <h3 class="text-2xl font-bold text-gray-800 mb-2" x-text="industry.name + ' Agent Team'"></h3>
+                        <p class="text-gray-600 mb-6" x-text="industry.description"></p>
+
+                        <!-- Team Collaboration Diagram -->
+                        <div class="bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg p-6 mb-6">
+                            <h4 class="text-lg font-semibold text-gray-800 mb-4">Team Collaboration Map</h4>
+                            <div class="space-y-4">
+                                <template x-for="agent in industry.agents" :key="agent.id">
+                                    <div class="flex items-start space-x-4">
+                                        <div class="flex-shrink-0 w-48 bg-white rounded-lg p-3 border-2 border-blue-500">
+                                            <div class="font-bold text-sm text-gray-800" x-text="agent.name"></div>
+                                            <div class="text-xs text-gray-600 mt-1" x-text="agent.role"></div>
+                                            <div class="text-xs mt-2">
+                                                <span class="px-2 py-1 rounded-full text-white"
+                                                      :class="agent.maturityLevel === 'bronze' ? 'bg-orange-500' :
+                                                              agent.maturityLevel === 'silver' ? 'bg-gray-400' : 'bg-yellow-500'"
+                                                      x-text="agent.maturityLevel"></span>
+                                            </div>
+                                        </div>
+                                        <div class="flex-1">
+                                            <div class="text-sm text-gray-700 mb-2">
+                                                <strong>Collaborates with:</strong>
+                                            </div>
+                                            <template x-if="agent.interactsWith && agent.interactsWith.length > 0">
+                                                <div class="flex flex-wrap gap-2">
+                                                    <template x-for="partnerId in agent.interactsWith" :key="partnerId">
+                                                        <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium"
+                                                              x-text="partnerId.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')">
+                                                        </span>
+                                                    </template>
+                                                </div>
+                                            </template>
+                                            <template x-if="!agent.interactsWith || agent.interactsWith.length === 0">
+                                                <span class="text-xs text-gray-500 italic">Independent agent</span>
+                                            </template>
+                                            <div class="mt-3 text-xs text-gray-600">
+                                                <strong>MCP Servers:</strong> <span x-text="agent.mcpServers.length"></span> connected
+                                                <div class="text-gray-500 mt-1" x-text="agent.mcpServers.slice(0, 3).join(', ') + (agent.mcpServers.length > 3 ? '...' : '')"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+                            </div>
+                        </div>
+
+                        <!-- High-Value Use Case -->
+                        <div class="bg-blue-50 rounded-lg p-6 border-l-4 border-blue-500">
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">💎 High-Value Team Workflow</h4>
+                            <template x-if="key === 'creative-marketing'">
+                                <div class="space-y-3">
+                                    <div class="text-sm text-gray-800">
+                                        <strong>Scenario:</strong> Launch a new product campaign across 5 channels in 24 hours
+                                    </div>
+                                    <div class="bg-white rounded p-4 space-y-2 text-sm">
+                                        <div class="flex items-start">
+                                            <span class="font-bold text-blue-600 mr-3 w-6">1.</span>
+                                            <div>
+                                                <strong>Content Strategist</strong> analyzes trending topics and creates content calendar
+                                                <div class="text-xs text-gray-600 mt-1">→ Connects to Google Trends, Reddit API, Twitter API via MCP</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <span class="font-bold text-blue-600 mr-3 w-6">2.</span>
+                                            <div>
+                                                <strong>SEO Optimizer</strong> optimizes headlines and descriptions for search
+                                                <div class="text-xs text-gray-600 mt-1">→ Uses SEMrush, Ahrefs MCP servers for keyword data</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <span class="font-bold text-blue-600 mr-3 w-6">3.</span>
+                                            <div>
+                                                <strong>Campaign Orchestrator</strong> coordinates parallel launch across channels
+                                                <div class="text-xs text-gray-600 mt-1">→ Delegates to Social Media Manager + Analytics Agent</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <span class="font-bold text-blue-600 mr-3 w-6">4.</span>
+                                            <div>
+                                                <strong>Analytics Agent</strong> monitors performance in real-time, adjusts strategy
+                                                <div class="text-xs text-gray-600 mt-1">→ Streams data from Google Analytics 4, Meta Ads, LinkedIn</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-50 border border-green-200 rounded p-3 text-sm">
+                                        <strong class="text-green-800">Result:</strong> Campaign launched in <strong>6 hours</strong> instead of 5 days.
+                                        75% automation, 35% higher engagement due to real-time optimization.
+                                    </div>
+                                </div>
+                            </template>
+                            <template x-if="key === 'automotive'">
+                                <div class="space-y-3">
+                                    <div class="text-sm text-gray-800">
+                                        <strong>Scenario:</strong> Prevent production line shutdown due to quality defects
+                                    </div>
+                                    <div class="bg-white rounded p-4 space-y-2 text-sm">
+                                        <div class="flex items-start">
+                                            <span class="font-bold text-blue-600 mr-3 w-6">1.</span>
+                                            <div>
+                                                <strong>Quality Control Agent</strong> detects paint defect via computer vision (real-time)
+                                                <div class="text-xs text-gray-600 mt-1">→ 30 FPS camera feed + CV model inference < 100ms</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <span class="font-bold text-blue-600 mr-3 w-6">2.</span>
+                                            <div>
+                                                <strong>IoT Monitor Agent</strong> checks upstream sensor data to identify root cause
+                                                <div class="text-xs text-gray-600 mt-1">→ Analyzes temperature, humidity, spray pressure from MQTT streams</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <span class="font-bold text-blue-600 mr-3 w-6">3.</span>
+                                            <div>
+                                                <strong>Predictive Maintenance Agent</strong> predicts spray nozzle failure in 2 hours
+                                                <div class="text-xs text-gray-600 mt-1">→ Time-series ML model + historical maintenance data</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <span class="font-bold text-blue-600 mr-3 w-6">4.</span>
+                                            <div>
+                                                <strong>System Action</strong> Auto-schedules maintenance, alerts operator, adjusts line speed
+                                                <div class="text-xs text-gray-600 mt-1">→ Integrates with CMMS + SCADA systems</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-50 border border-green-200 rounded p-3 text-sm">
+                                        <strong class="text-green-800">Result:</strong> Zero downtime. Defect rate reduced 40%.
+                                        Predictive maintenance saved <strong>$800K/year</strong> in unplanned shutdowns.
+                                    </div>
+                                </div>
+                            </template>
+                            <template x-if="key === 'web3'">
+                                <div class="space-y-3">
+                                    <div class="text-sm text-gray-800">
+                                        <strong>Scenario:</strong> Deploy and monitor a new DeFi protocol launch
+                                    </div>
+                                    <div class="bg-white rounded p-4 space-y-2 text-sm">
+                                        <div class="flex items-start">
+                                            <span class="font-bold text-blue-600 mr-3 w-6">1.</span>
+                                            <div>
+                                                <strong>Smart Contract Auditor</strong> runs Slither + Mythril + manual review
+                                                <div class="text-xs text-gray-600 mt-1">→ Finds 3 medium-severity issues, suggests fixes</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <span class="font-bold text-blue-600 mr-3 w-6">2.</span>
+                                            <div>
+                                                <strong>DeFi Analyst Agent</strong> calculates optimal initial liquidity parameters
+                                                <div class="text-xs text-gray-600 mt-1">→ Analyzes Uniswap v3, Curve pool mechanics via MCP servers</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <span class="font-bold text-blue-600 mr-3 w-6">3.</span>
+                                            <div>
+                                                <strong>Security Monitor Agent</strong> watches mempool for front-running during launch
+                                                <div class="text-xs text-gray-600 mt-1">→ WebSocket connection to Ethereum node, < 1s detection</div>
+                                            </div>
+                                        </div>
+                                        <div class="flex items-start">
+                                            <span class="font-bold text-blue-600 mr-3 w-6">4.</span>
+                                            <div>
+                                                <strong>DAO Coordinator</strong> automates governance proposal for protocol parameters
+                                                <div class="text-xs text-gray-600 mt-1">→ Posts to Snapshot, tracks votes, executes on-chain</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="bg-green-50 border border-green-200 rounded p-3 text-sm">
+                                        <strong class="text-green-800">Result:</strong> Deployment time reduced from <strong>2 weeks to 3 days</strong>.
+                                        Zero security incidents. Prevented <strong>$5M+</strong> in potential exploit losses.
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </template>
+
+                <!-- Human-Agent Collaboration -->
+                <div class="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">👤 How Humans Work with Agent Teams</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <div class="bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg p-6">
+                            <div class="text-3xl mb-3">🎯</div>
+                            <h4 class="font-bold text-gray-800 mb-2">Strategic Direction</h4>
+                            <p class="text-sm text-gray-700">
+                                Humans set goals, priorities, and business constraints. Agents execute tactical operations
+                                autonomously within those guardrails.
+                            </p>
+                            <div class="mt-3 text-xs text-gray-600">
+                                <strong>Example:</strong> "Increase campaign ROI by 25%" → Agents optimize channels, timing, content
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg p-6">
+                            <div class="text-3xl mb-3">✅</div>
+                            <h4 class="font-bold text-gray-800 mb-2">Approval Gates</h4>
+                            <p class="text-sm text-gray-700">
+                                Critical decisions require human approval (e.g., deploying to mainnet, spending >$10K).
+                                Workflows pause for human review.
+                            </p>
+                            <div class="mt-3 text-xs text-gray-600">
+                                <strong>Example:</strong> Agent audits contract → Human reviews → Agent deploys
+                            </div>
+                        </div>
+
+                        <div class="bg-gradient-to-br from-green-50 to-green-100 rounded-lg p-6">
+                            <div class="text-3xl mb-3">📊</div>
+                            <h4 class="font-bold text-gray-800 mb-2">Insight Consumption</h4>
+                            <p class="text-sm text-gray-700">
+                                Agents deliver insights via dashboards, Slack notifications, emails. Humans make
+                                strategic pivots based on agent analysis.
+                            </p>
+                            <div class="mt-3 text-xs text-gray-600">
+                                <strong>Example:</strong> Analytics Agent detects trend shift → Alert → Human adjusts strategy
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Implementation Architecture View -->
+            <div x-show="currentView === 'implementation'" class="space-y-8">
+
+                <!-- Architecture Overview -->
+                <div class="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-lg p-8 border border-blue-200">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">🏗️ Production Implementation Architecture</h3>
+                    <p class="text-gray-700 mb-6">
+                        Building production multi-agent systems requires careful architectural decisions across deployment,
+                        orchestration, monitoring, and security layers. This guide shows you how to implement agents using
+                        Oracle Agent Spec for production and Claude agent.md files for development.
+                    </p>
+
+                    <!-- Architecture Diagram -->
+                    <div class="bg-white rounded-lg p-6 border border-gray-300 code-font text-xs">
+                        <pre class="text-gray-800">
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          ENTERPRISE APPLICATION LAYER                         │
+│  (Slack, Teams, Custom UI, API Gateway, Event Bus)                          │
+└───────────────────────────────────────┬─────────────────────────────────────┘
+                                        │
+┌───────────────────────────────────────▼─────────────────────────────────────┐
+│                          AGENT ORCHESTRATION LAYER                           │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │
+│  │  AutoGen     │  │  LangGraph   │  │   WayFlow    │  │ Custom       │   │
+│  │  Runtime     │  │  Runtime     │  │   Engine     │  │ Orchestrator │   │
+│  └──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘   │
+│       ↓ Reads Agent Spec YAML                                               │
+└───────────────────────────────────────┬─────────────────────────────────────┘
+                                        │
+┌───────────────────────────────────────▼─────────────────────────────────────┐
+│                          AGENT SPECIFICATION LAYER                           │
+│  agent-spec/*.yaml (Production) | claude/*.md (Development)                 │
+│  • Defines agent capabilities, tools, MCP connections                       │
+│  • Governance rules, approval workflows                                      │
+│  • Business impact metrics, KPIs                                             │
+└───────────────────────────────────────┬─────────────────────────────────────┘
+                                        │
+┌───────────────────────────────────────▼─────────────────────────────────────┐
+│                          MODEL CONTEXT PROTOCOL (MCP) LAYER                  │
+│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐   │
+│  │  Analytics   │  │  Blockchain  │  │   CRM/ERP    │  │   IoT/MQTT   │   │
+│  │  MCP Server  │  │  MCP Server  │  │  MCP Server  │  │  MCP Server  │   │
+│  └──────────────┘  └──────────────┘  └──────────────┘  └──────────────┘   │
+│  Authentication • Rate Limiting • Retry Logic • Health Checks               │
+└───────────────────────────────────────┬─────────────────────────────────────┘
+                                        │
+┌───────────────────────────────────────▼─────────────────────────────────────┐
+│                          ENTERPRISE DATA SOURCES                             │
+│  Google Analytics, Ethereum Nodes, SAP ERP, Salesforce, Kafka, SCADA, etc. │
+└─────────────────────────────────────────────────────────────────────────────┘</pre>
+                    </div>
+                </div>
+
+                <!-- Agent Spec vs agent.md -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-purple-500">
+                        <h4 class="text-xl font-bold text-gray-800 mb-3">📄 Oracle Agent Spec (.yaml)</h4>
+                        <div class="mb-4">
+                            <span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium">
+                                Production Runtime
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-700 mb-4">
+                            Platform-agnostic specification for production agents. Used by AutoGen, LangGraph,
+                            WayFlow, and other orchestration frameworks at runtime.
+                        </p>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-start">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>Defines MCP server connections</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>Governance & approval workflows</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>Business KPIs and monitoring</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>Multi-framework compatible</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 bg-gray-100 rounded p-3 code-font text-xs">
+                            <div class="text-gray-600 mb-2">Example file:</div>
+                            <div class="text-blue-600">web3/agents/agent-spec/<br>smart-contract-auditor.yaml</div>
+                        </div>
+                    </div>
+
+                    <div class="bg-white rounded-lg shadow-lg p-6 border-l-4 border-blue-500">
+                        <h4 class="text-xl font-bold text-gray-800 mb-3">💻 Claude Agent (.md)</h4>
+                        <div class="mb-4">
+                            <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                                Development Assistant
+                            </span>
+                        </div>
+                        <p class="text-sm text-gray-700 mb-4">
+                            Markdown files for Claude Code (dev-time coding assistant). Helps developers build,
+                            debug, and improve software. Not used in production.
+                        </p>
+                        <div class="space-y-2 text-sm">
+                            <div class="flex items-start">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>Assists with code generation</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>Code reviews & debugging</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>Technology-specific guidance</span>
+                            </div>
+                            <div class="flex items-start">
+                                <span class="text-green-600 mr-2">✓</span>
+                                <span>Claude Code CLI integration</span>
+                            </div>
+                        </div>
+                        <div class="mt-4 bg-gray-100 rounded p-3 code-font text-xs">
+                            <div class="text-gray-600 mb-2">Example file:</div>
+                            <div class="text-blue-600">web3/agents/claude/<br>web3-integration-specialist.md</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Deployment Steps -->
+                <div class="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">📦 Production Deployment Steps</h3>
+
+                    <div class="space-y-6">
+                        <!-- Step 1 -->
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0 w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xl">
+                                1
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 mb-2">Define Agent Specifications</h4>
+                                <p class="text-sm text-gray-700 mb-3">
+                                    Create Oracle Agent Spec YAML files for each production agent. Define capabilities,
+                                    MCP server connections, governance rules, and business KPIs.
+                                </p>
+                                <div class="bg-gray-800 rounded p-4 code-font text-xs overflow-x-auto">
+                                    <pre class="text-gray-100">agent:
+  name: "content-strategist"
+  version: "1.0.0"
+  description: "Market trend analysis and content calendar management"
+
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+
+  mcp_servers:
+    - name: "analytics-mcp"
+      endpoint: "${MCP_ANALYTICS_ENDPOINT}"
+    - name: "social-media-mcp"
+      endpoint: "${MCP_SOCIAL_MEDIA_ENDPOINT}"
+
+  governance:
+    approval_required: ["publish_content", "ad_spend>5000"]</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 2 -->
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0 w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xl">
+                                2
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 mb-2">Configure MCP Servers</h4>
+                                <p class="text-sm text-gray-700 mb-3">
+                                    Set up MCP servers for each data source. Configure authentication, rate limiting,
+                                    retry policies, and health checks. Use Confluent pre-built connectors when available.
+                                </p>
+                                <div class="bg-gray-800 rounded p-4 code-font text-xs overflow-x-auto">
+                                    <pre class="text-gray-100">mcp_server:
+  name: "analytics-mcp"
+  type: "google-analytics-4"
+
+  authentication:
+    type: "oauth2"
+    client_id: "${GA4_CLIENT_ID}"
+    client_secret: "${GA4_CLIENT_SECRET}"
+    token_url: "https://oauth2.googleapis.com/token"
+
+  rate_limiting:
+    requests_per_minute: 60
+
+  health_check:
+    enabled: true
+    interval_seconds: 30</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 3 -->
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0 w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xl">
+                                3
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 mb-2">Choose Orchestration Framework</h4>
+                                <p class="text-sm text-gray-700 mb-3">
+                                    Select runtime: AutoGen (research-focused), LangGraph (graph-based), WayFlow (enterprise),
+                                    or custom. All can read Oracle Agent Spec.
+                                </p>
+                                <div class="grid grid-cols-3 gap-3">
+                                    <div class="bg-blue-50 rounded p-3 text-xs">
+                                        <div class="font-bold text-gray-800">AutoGen</div>
+                                        <div class="text-gray-600 mt-1">Research, prototyping</div>
+                                    </div>
+                                    <div class="bg-green-50 rounded p-3 text-xs">
+                                        <div class="font-bold text-gray-800">LangGraph</div>
+                                        <div class="text-gray-600 mt-1">Complex workflows</div>
+                                    </div>
+                                    <div class="bg-purple-50 rounded p-3 text-xs">
+                                        <div class="font-bold text-gray-800">WayFlow</div>
+                                        <div class="text-gray-600 mt-1">Enterprise governance</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 4 -->
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0 w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xl">
+                                4
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 mb-2">Deploy with Monitoring</h4>
+                                <p class="text-sm text-gray-700 mb-3">
+                                    Deploy to Kubernetes/ECS. Enable metrics (Prometheus), logs (Datadog), tracing (Jaeger).
+                                    Set up alerts for failures and performance degradation.
+                                </p>
+                                <div class="bg-gray-800 rounded p-4 code-font text-xs overflow-x-auto">
+                                    <pre class="text-gray-100">kubectl apply -f agent-deployment.yaml
+
+# Monitor
+kubectl logs -f deployment/content-strategist-agent
+prometheus-query: agent_requests_total{agent="content-strategist"}</pre>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Step 5 -->
+                        <div class="flex items-start space-x-4">
+                            <div class="flex-shrink-0 w-12 h-12 bg-blue-500 text-white rounded-full flex items-center justify-center font-bold text-xl">
+                                5
+                            </div>
+                            <div class="flex-1">
+                                <h4 class="font-bold text-gray-800 mb-2">Test & Iterate</h4>
+                                <p class="text-sm text-gray-700 mb-3">
+                                    Run end-to-end tests. Monitor KPIs defined in Agent Spec. Iterate on prompts,
+                                    orchestration logic, and MCP configurations based on real usage.
+                                </p>
+                                <div class="bg-green-50 border border-green-200 rounded p-3 text-sm">
+                                    <strong>Best Practice:</strong> Start with Bronze-tier agents (high autonomy, clear KPIs),
+                                    prove ROI in 3 months, then expand to Silver and Gold tiers.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Enterprise Integration Patterns -->
+                <div class="bg-white rounded-lg shadow-lg p-8 border border-gray-200">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">🔗 Enterprise Integration Patterns</h3>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-blue-50 rounded-lg p-6 border border-blue-200">
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">🔐 Authentication & Authorization</h4>
+                            <p class="text-sm text-gray-700 mb-3">
+                                Integrate with enterprise SSO (Okta, Azure AD). Use service accounts for agent-to-MCP
+                                communication. Implement RBAC for human approval gates.
+                            </p>
+                            <div class="bg-white rounded p-3 text-xs code-font">
+                                OAuth2 + JWT tokens<br>
+                                Service accounts per agent<br>
+                                RBAC: Approver, Viewer, Admin
+                            </div>
+                        </div>
+
+                        <div class="bg-green-50 rounded-lg p-6 border border-green-200">
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">📊 Observability</h4>
+                            <p class="text-sm text-gray-700 mb-3">
+                                Full-stack observability: metrics (Prometheus/Grafana), logs (Datadog/Splunk),
+                                distributed tracing (Jaeger), and business KPI dashboards.
+                            </p>
+                            <div class="bg-white rounded p-3 text-xs code-font">
+                                Prometheus: agent_requests_total<br>
+                                Jaeger: Request traces<br>
+                                Custom: Business KPI metrics
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-50 rounded-lg p-6 border border-purple-200">
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">⚡ Event-Driven Architecture</h4>
+                            <p class="text-sm text-gray-700 mb-3">
+                                Use Kafka/RabbitMQ for event streaming. Agents subscribe to relevant events,
+                                trigger actions asynchronously. Enables real-time responsiveness.
+                            </p>
+                            <div class="bg-white rounded p-3 text-xs code-font">
+                                Kafka topics: analytics-events<br>
+                                Agent subscribes → processes → publishes<br>
+                                Decoupled, scalable
+                            </div>
+                        </div>
+
+                        <div class="bg-orange-50 rounded-lg p-6 border border-orange-200">
+                            <h4 class="text-lg font-bold text-gray-800 mb-3">🛡️ Security & Compliance</h4>
+                            <p class="text-sm text-gray-700 mb-3">
+                                Encrypt data at rest and in transit. Audit all agent actions. Compliance-ready
+                                (SOC2, GDPR, HIPAA). Secret management via Vault/AWS Secrets Manager.
+                            </p>
+                            <div class="bg-white rounded p-3 text-xs code-font">
+                                TLS 1.3 for MCP connections<br>
+                                Audit logs: All actions<br>
+                                Secrets: AWS Secrets Manager
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Industries View with Full Content -->
+            <div x-show="currentView === 'industries'" class="space-y-6">
+                <!-- Industry Comparison Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <template x-for="(industry, key) in config?.industries" :key="key">
+                        <button @click="selectedIndustry = key; currentView = 'agent-explorer'"
+                                class="bg-white rounded-lg shadow-lg p-6 hover:shadow-xl transition text-left border-2"
+                                :class="selectedIndustry === key ? 'border-blue-500' : 'border-transparent'">
+                            <h3 class="text-xl font-bold text-gray-800 mb-2" x-text="industry.name"></h3>
+                            <p class="text-sm text-gray-600 mb-4" x-text="industry.description"></p>
+
+                            <div class="space-y-2 text-sm">
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Agents:</span>
+                                    <span class="font-semibold" x-text="industry.agents.length"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">MCP Servers:</span>
+                                    <span class="font-semibold" x-text="industry.mcpServers.length"></span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-gray-600">Workflows:</span>
+                                    <span class="font-semibold" x-text="industry.workflows.length"></span>
+                                </div>
+                            </div>
+
+                            <div class="mt-4 pt-4 border-t border-gray-200">
+                                <div class="text-xs text-gray-500 mb-1">Bronze Investment:</div>
+                                <div class="text-lg font-bold text-blue-600" x-text="industry.roi.bronze.investment"></div>
+                                <div class="text-xs text-green-600 mt-1" x-text="industry.roi.bronze.gain + ' efficiency gain'"></div>
+                            </div>
+                        </button>
+                    </template>
+                </div>
+
+                <!-- Detailed Industry Breakdown -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Industry-by-Industry Comparison</h3>
+
+                    <div class="overflow-x-auto">
+                        <table class="w-full">
+                            <thead>
+                                <tr class="bg-gray-50">
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Industry</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Total Agents</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Maturity Phases</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Key MCP Servers</th>
+                                    <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Top Automation</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <template x-for="(industry, key) in config?.industries" :key="key">
+                                    <tr class="border-t border-gray-200 hover:bg-gray-50">
+                                        <td class="px-4 py-4">
+                                            <div class="font-semibold text-gray-800" x-text="industry.name"></div>
+                                            <div class="text-xs text-gray-500" x-text="industry.description"></div>
+                                        </td>
+                                        <td class="px-4 py-4 text-gray-700" x-text="industry.agents.length + ' agents'"></td>
+                                        <td class="px-4 py-4">
+                                            <div class="flex space-x-1">
+                                                <span class="badge badge-bronze">B</span>
+                                                <span class="badge badge-silver">S</span>
+                                                <span class="badge badge-gold">G</span>
+                                            </div>
+                                        </td>
+                                        <td class="px-4 py-4 text-sm text-gray-600">
+                                            <span x-text="industry.mcpServers.slice(0, 2).map(s => s.name).join(', ')"></span>
+                                            <span x-show="industry.mcpServers.length > 2" x-text="' +' + (industry.mcpServers.length - 2)"></span>
+                                        </td>
+                                        <td class="px-4 py-4 text-sm">
+                                            <div class="font-medium text-gray-800" x-text="industry.workflows[0].name"></div>
+                                            <div class="text-xs text-green-600" x-text="industry.workflows[0].automation + ' automated'"></div>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Workflow Automation Levels -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Workflow Automation Levels by Industry</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                        <template x-for="(industry, key) in config?.industries" :key="key">
+                            <div class="border border-gray-200 rounded-lg p-6">
+                                <h4 class="font-bold text-gray-800 mb-4" x-text="industry.name"></h4>
+                                <template x-for="workflow in industry.workflows" :key="workflow.name">
+                                    <div class="mb-4">
+                                        <div class="flex justify-between items-center mb-2">
+                                            <span class="text-sm font-medium text-gray-700" x-text="workflow.name"></span>
+                                            <span class="text-sm font-bold text-blue-600" x-text="workflow.automation"></span>
+                                        </div>
+                                        <div class="w-full bg-gray-200 rounded-full h-2">
+                                            <div class="bg-blue-600 h-2 rounded-full" :style="'width: ' + workflow.automation"></div>
+                                        </div>
+                                        <div class="text-xs text-gray-500 mt-1" x-text="'Avg duration: ' + workflow.avgDuration"></div>
+                                    </div>
+                                </template>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MCP Infrastructure View -->
+            <div x-show="currentView === 'mcp-infrastructure'" class="space-y-6">
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">MCP Server Infrastructure</h3>
+                    <p class="text-gray-600 mb-6">
+                        Model Context Protocol (MCP) servers provide standardized data source integration across all agents.
+                        Below are all 27 servers with authentication methods, data flow patterns, and usage examples.
+                    </p>
+
+                    <!-- MCP Server Cards by Industry -->
+                    <div class="space-y-8">
+                        <template x-for="(industry, key) in config?.industries" :key="key">
+                            <div>
+                                <h4 class="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                                    <span x-text="industry.name"></span>
+                                    <span class="ml-3 px-2 py-1 bg-blue-100 text-blue-800 rounded text-sm font-normal"
+                                          x-text="industry.mcpServers.length + ' servers'"></span>
+                                </h4>
+
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <template x-for="server in industry.mcpServers" :key="server.name">
+                                        <div class="border border-gray-200 rounded-lg p-5 hover:bg-gray-50 transition">
+                                            <div class="flex items-start justify-between mb-3">
+                                                <div class="flex-1">
+                                                    <h5 class="font-bold text-gray-800 mb-1 code-font text-sm" x-text="server.name"></h5>
+                                                    <p class="text-sm text-gray-600" x-text="server.description"></p>
+                                                </div>
+                                                <span class="ml-3 px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium whitespace-nowrap"
+                                                      x-text="server.dataFlow"></span>
+                                            </div>
+
+                                            <div class="mt-4 pt-4 border-t border-gray-100">
+                                                <div class="text-xs text-gray-500 mb-2">Configuration Example:</div>
+                                                <div class="bg-gray-800 rounded p-3 code-font text-xs text-gray-300">
+                                                    <div>endpoint: "${MCP_<span x-text="server.name.toUpperCase().replace(/-/g, '_')"></span>_ENDPOINT}"</div>
+                                                    <div>auth: oauth2</div>
+                                                    <div>dataFlow: <span x-text="server.dataFlow"></span></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </template>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- MCP Integration Guide -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">MCP Integration Guide</h3>
+
+                    <div class="space-y-6">
+                        <div class="border-l-4 border-blue-600 bg-blue-50 p-6 rounded">
+                            <h4 class="font-bold text-blue-900 mb-3">Step 1: Install MCP Server</h4>
+                            <div class="code-viewer">
+                                <pre><code class="bash">npm install @anthropic/mcp-server
+# or
+yarn add @anthropic/mcp-server</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="border-l-4 border-green-600 bg-green-50 p-6 rounded">
+                            <h4 class="font-bold text-green-900 mb-3">Step 2: Configure Environment Variables</h4>
+                            <div class="code-viewer">
+                                <pre><code class="bash">export MCP_ANALYTICS_ENDPOINT="https://analytics.example.com"
+export ANALYTICS_CLIENT_ID="your_client_id"
+export ANALYTICS_CLIENT_SECRET="your_client_secret"</code></pre>
+                            </div>
+                        </div>
+
+                        <div class="border-l-4 border-purple-600 bg-purple-50 p-6 rounded">
+                            <h4 class="font-bold text-purple-900 mb-3">Step 3: Add to Agent Spec</h4>
+                            <div class="code-viewer">
+                                <pre><code class="yaml">mcp_servers:
+  - name: "analytics-mcp"
+    endpoint: "${MCP_ANALYTICS_ENDPOINT}"
+    authentication:
+      type: "oauth2"
+      client_id: "${ANALYTICS_CLIENT_ID}"
+      client_secret: "${ANALYTICS_CLIENT_SECRET}"</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Confluent Integration -->
+                <div class="bg-gradient-to-r from-orange-50 to-amber-50 border border-orange-200 rounded-lg shadow-lg p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">🔥 Confluent Pre-Built Connectors</h3>
+                    <p class="text-gray-700 mb-4">
+                        120+ pre-built MCP server connectors available via Confluent, including:
+                    </p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+                        <div class="bg-white rounded p-3 text-sm font-medium text-gray-700">Google Analytics</div>
+                        <div class="bg-white rounded p-3 text-sm font-medium text-gray-700">Salesforce</div>
+                        <div class="bg-white rounded p-3 text-sm font-medium text-gray-700">HubSpot</div>
+                        <div class="bg-white rounded p-3 text-sm font-medium text-gray-700">Slack</div>
+                        <div class="bg-white rounded p-3 text-sm font-medium text-gray-700">PostgreSQL</div>
+                        <div class="bg-white rounded p-3 text-sm font-medium text-gray-700">MongoDB</div>
+                        <div class="bg-white rounded p-3 text-sm font-medium text-gray-700">S3</div>
+                        <div class="bg-white rounded p-3 text-sm font-medium text-gray-700">BigQuery</div>
+                    </div>
+                    <div class="mt-4 text-sm text-gray-600">
+                        Visit <a href="https://www.confluent.io/hub/" class="text-blue-600 hover:underline">Confluent Hub</a> for the full catalog
+                    </div>
+                </div>
+            </div>
+
+            <!-- Decision Framework View -->
+            <div x-show="currentView === 'decision-framework'" class="space-y-6">
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Technology Decision Framework</h3>
+                    <p class="text-gray-600 mb-8">
+                        Use this comprehensive decision framework to select the right technology for your use case.
+                        Each scenario includes real-world examples and code patterns.
+                    </p>
+
+                    <!-- Scenario-Based Decision Guide -->
+                    <div class="space-y-6">
+                        <div class="bg-blue-50 border border-blue-200 rounded-lg p-6">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4">📌 Scenario 1: Building a Production Content Generation System</h4>
+                            <div class="mb-4">
+                                <span class="font-semibold text-gray-700">Requirements:</span>
+                                <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1 text-sm">
+                                    <li>Generate blog posts 24/7 based on trending topics</li>
+                                    <li>Needs human approval before publishing</li>
+                                    <li>Must integrate with CMS and analytics</li>
+                                    <li>Track performance metrics</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white rounded p-4">
+                                <div class="font-semibold text-green-800 mb-2">✅ Solution:</div>
+                                <ul class="space-y-2 text-sm">
+                                    <li class="flex items-start">
+                                        <span class="font-bold text-blue-600 w-32">Agent Spec:</span>
+                                        <span class="text-gray-700">content-generation-agent.yaml (for AI content creation)</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="font-bold text-purple-600 w-32">Workflow:</span>
+                                        <span class="text-gray-700">content-approval.yaml (for human review gate)</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="font-bold text-orange-600 w-32">MCP Servers:</span>
+                                        <span class="text-gray-700">content-management-mcp, analytics-mcp, seo-tools-mcp</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-green-50 border border-green-200 rounded-lg p-6">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4">📌 Scenario 2: Developer Coding Assistant for React Apps</h4>
+                            <div class="mb-4">
+                                <span class="font-semibold text-gray-700">Requirements:</span>
+                                <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1 text-sm">
+                                    <li>Help developers write React components</li>
+                                    <li>Code reviews and refactoring</li>
+                                    <li>Only needed during development</li>
+                                    <li>Integrated with IDE</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white rounded p-4">
+                                <div class="font-semibold text-green-800 mb-2">✅ Solution:</div>
+                                <ul class="space-y-2 text-sm">
+                                    <li class="flex items-start">
+                                        <span class="font-bold text-green-600 w-32">Claude agent.md:</span>
+                                        <span class="text-gray-700">frontend-specialist.md (development-time coding help)</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="font-bold text-red-600 w-32">NOT Agent Spec:</span>
+                                        <span class="text-gray-700">This is dev-time only, not a production system</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="bg-purple-50 border border-purple-200 rounded-lg p-6">
+                            <h4 class="text-lg font-bold text-gray-800 mb-4">📌 Scenario 3: Smart Contract Deployment Pipeline</h4>
+                            <div class="mb-4">
+                                <span class="font-semibold text-gray-700">Requirements:</span>
+                                <ul class="list-disc list-inside text-gray-600 mt-2 space-y-1 text-sm">
+                                    <li>Security audit before deployment</li>
+                                    <li>Multi-sig approval required</li>
+                                    <li>Deploy to testnet then mainnet</li>
+                                    <li>No AI decision-making in critical steps</li>
+                                </ul>
+                            </div>
+                            <div class="bg-white rounded p-4">
+                                <div class="font-semibold text-green-800 mb-2">✅ Solution:</div>
+                                <ul class="space-y-2 text-sm">
+                                    <li class="flex items-start">
+                                        <span class="font-bold text-blue-600 w-32">Agent Spec:</span>
+                                        <span class="text-gray-700">smart-contract-auditor.yaml (for automated security scans)</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="font-bold text-purple-600 w-32">Workflow:</span>
+                                        <span class="text-gray-700">deployment-pipeline.yaml (orchestrates with approval gates)</span>
+                                    </li>
+                                    <li class="flex items-start">
+                                        <span class="font-bold text-orange-600 w-32">MCP Servers:</span>
+                                        <span class="text-gray-700">blockchain-mcp, security-tools-mcp, github-mcp</span>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Decision Matrix -->
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Complete Decision Matrix</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full border-collapse">
+                            <thead>
+                                <tr class="bg-gray-800 text-white">
+                                    <th class="border border-gray-600 p-3 text-left">Your Need</th>
+                                    <th class="border border-gray-600 p-3 text-left">Technology</th>
+                                    <th class="border border-gray-600 p-3 text-left">Example Use Case</th>
+                                    <th class="border border-gray-600 p-3 text-left">File Location</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-sm">
+                                <tr class="hover:bg-blue-50">
+                                    <td class="border border-gray-200 p-3">Production AI agent running 24/7</td>
+                                    <td class="border border-gray-200 p-3 font-semibold text-blue-600">Oracle Agent Spec</td>
+                                    <td class="border border-gray-200 p-3">Content generation, monitoring, analysis</td>
+                                    <td class="border border-gray-200 p-3 code-font text-xs">agents/agent-spec/*.yaml</td>
+                                </tr>
+                                <tr class="hover:bg-green-50">
+                                    <td class="border border-gray-200 p-3">Coding help while developing</td>
+                                    <td class="border border-gray-200 p-3 font-semibold text-green-600">Claude agent.md</td>
+                                    <td class="border border-gray-200 p-3">Code reviews, refactoring, debugging</td>
+                                    <td class="border border-gray-200 p-3 code-font text-xs">agents/claude/*.md</td>
+                                </tr>
+                                <tr class="hover:bg-purple-50">
+                                    <td class="border border-gray-200 p-3">Business process with approval gates</td>
+                                    <td class="border border-gray-200 p-3 font-semibold text-purple-600">Workflow YAML</td>
+                                    <td class="border border-gray-200 p-3">Deployment pipelines, review processes</td>
+                                    <td class="border border-gray-200 p-3 code-font text-xs">workflows/*.yaml</td>
+                                </tr>
+                                <tr class="hover:bg-orange-50">
+                                    <td class="border border-gray-200 p-3">Connect to external data/APIs</td>
+                                    <td class="border border-gray-200 p-3 font-semibold text-orange-600">MCP Server</td>
+                                    <td class="border border-gray-200 p-3">Database access, SaaS integrations</td>
+                                    <td class="border border-gray-200 p-3 code-font text-xs">mcp-servers.md</td>
+                                </tr>
+                                <tr class="hover:bg-blue-50">
+                                    <td class="border border-gray-200 p-3">Multi-agent coordination</td>
+                                    <td class="border border-gray-200 p-3 font-semibold text-blue-600">Agent Spec + Workflows</td>
+                                    <td class="border border-gray-200 p-3">Campaign launch, manufacturing pipeline</td>
+                                    <td class="border border-gray-200 p-3 code-font text-xs">Both combined</td>
+                                </tr>
+                                <tr class="hover:bg-green-50">
+                                    <td class="border border-gray-200 p-3">Prototype before production</td>
+                                    <td class="border border-gray-200 p-3 font-semibold text-green-600">Claude agent.md first</td>
+                                    <td class="border border-gray-200 p-3">Build prototype, then convert to Agent Spec</td>
+                                    <td class="border border-gray-200 p-3 code-font text-xs">agents/claude/*.md</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Config Builder View -->
+            <div x-show="currentView === 'config-builder'" class="space-y-6">
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">Interactive Configuration Builder</h3>
+                    <p class="text-gray-600 mb-8">
+                        Build a custom agent configuration by answering a few questions. We'll generate the YAML for you.
+                    </p>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+                        <!-- Configuration Form -->
+                        <div class="space-y-6">
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Agent Name</label>
+                                <input type="text"
+                                       x-model="builderConfig.name"
+                                       placeholder="e.g., customer-support-agent"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                                <p class="text-xs text-gray-500 mt-1">Use lowercase with hyphens</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Description</label>
+                                <textarea
+                                    x-model="builderConfig.description"
+                                    placeholder="What does this agent do?"
+                                    rows="3"
+                                    class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"></textarea>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Industry</label>
+                                <select x-model="builderConfig.industry" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <option value="creative-marketing">Creative/Marketing</option>
+                                    <option value="automotive">Automotive</option>
+                                    <option value="web3">Web3</option>
+                                    <option value="custom">Custom</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Maturity Level</label>
+                                <div class="flex space-x-3">
+                                    <label class="flex items-center">
+                                        <input type="radio" x-model="builderConfig.maturity" value="bronze" class="mr-2">
+                                        <span class="badge badge-bronze">Bronze</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" x-model="builderConfig.maturity" value="silver" class="mr-2">
+                                        <span class="badge badge-silver">Silver</span>
+                                    </label>
+                                    <label class="flex items-center">
+                                        <input type="radio" x-model="builderConfig.maturity" value="gold" class="mr-2">
+                                        <span class="badge badge-gold">Gold</span>
+                                    </label>
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Autonomy Level</label>
+                                <select x-model="builderConfig.autonomy" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <option value="high">High (80-90% autonomous)</option>
+                                    <option value="medium">Medium (60-65% autonomous)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">MCP Servers (comma-separated)</label>
+                                <input type="text"
+                                       x-model="builderConfig.mcpServers"
+                                       placeholder="analytics-mcp, crm-mcp"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                <p class="text-xs text-gray-500 mt-1">Enter server names separated by commas</p>
+                            </div>
+
+                            <button @click="generateConfig()"
+                                    class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 rounded-lg transition">
+                                Generate Configuration
+                            </button>
+                        </div>
+
+                        <!-- Generated Output -->
+                        <div>
+                            <label class="block text-sm font-semibold text-gray-700 mb-2">Generated Agent Spec YAML</label>
+                            <div class="code-viewer" style="max-height: 600px; overflow-y: auto;">
+                                <div class="code-header">
+                                    <span class="text-gray-300 text-sm code-font" x-text="(builderConfig.name || 'agent') + '.yaml'"></span>
+                                    <button class="copy-button" @click="copyGeneratedConfig()">Copy</button>
+                                </div>
+                                <pre><code class="yaml" id="generatedConfig" x-text="generatedYAML"></code></pre>
+                            </div>
+
+                            <div class="mt-4 bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <div class="flex items-start">
+                                    <div class="text-yellow-600 mr-3">💡</div>
+                                    <div class="text-sm text-gray-700">
+                                        <div class="font-semibold mb-1">Next Steps:</div>
+                                        <ol class="list-decimal list-inside space-y-1">
+                                            <li>Copy the generated YAML</li>
+                                            <li>Save as <span class="code-font bg-gray-200 px-1 rounded" x-text="(builderConfig.name || 'agent') + '.yaml'"></span></li>
+                                            <li>Configure environment variables for MCP servers</li>
+                                            <li>Deploy with AutoGen, LangGraph, or WayFlow</li>
+                                        </ol>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ROI Calculator View -->
+            <div x-show="currentView === 'roi-calculator'" class="space-y-6">
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-6">ROI Calculator</h3>
+                    <p class="text-gray-600 mb-8">
+                        Calculate the expected return on investment for your multi-agent system implementation.
+                        Based on research from McKinsey, AWS, IBM, and Microsoft.
+                    </p>
+
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                        <!-- Input Section -->
+                        <div class="space-y-6">
+                            <h4 class="text-lg font-bold text-gray-800">Your Parameters</h4>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Select Industry</label>
+                                <select x-model="roiIndustry" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <option value="creative-marketing">Creative/Marketing</option>
+                                    <option value="automotive">Automotive</option>
+                                    <option value="web3">Web3</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Maturity Phase</label>
+                                <select x-model="roiPhase" class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                    <option value="bronze">Bronze (3 months - 2-3 agents)</option>
+                                    <option value="silver">Silver (9 months - 5 agents)</option>
+                                    <option value="gold">Gold (18 months - optimized)</option>
+                                </select>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Current Annual Operational Cost ($K)</label>
+                                <input type="number"
+                                       x-model.number="currentCost"
+                                       placeholder="500"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                <p class="text-xs text-gray-500 mt-1">Your current annual spend on operations this system will improve</p>
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-semibold text-gray-700 mb-2">Team Size</label>
+                                <input type="number"
+                                       x-model.number="teamSize"
+                                       placeholder="10"
+                                       class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                                <p class="text-xs text-gray-500 mt-1">Number of people whose work will be augmented</p>
+                            </div>
+
+                            <button @click="calculateDetailedROI()"
+                                    class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 rounded-lg transition">
+                                Calculate ROI
+                            </button>
+                        </div>
+
+                        <!-- Results Section -->
+                        <div class="space-y-4">
+                            <h4 class="text-lg font-bold text-gray-800">Projected Results</h4>
+
+                            <div class="bg-gradient-to-r from-blue-50 to-blue-100 rounded-lg p-6 border border-blue-200">
+                                <div class="text-sm text-gray-600 mb-1">Required Investment</div>
+                                <div class="text-3xl font-bold text-blue-600" x-text="calculateROI().investment"></div>
+                                <div class="text-xs text-gray-500 mt-1">One-time implementation cost</div>
+                            </div>
+
+                            <div class="grid grid-cols-2 gap-4">
+                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                    <div class="text-sm text-gray-600 mb-1">Efficiency Gain</div>
+                                    <div class="text-2xl font-bold text-green-600" x-text="calculateROI().gain"></div>
+                                </div>
+
+                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                    <div class="text-sm text-gray-600 mb-1">Annual Savings</div>
+                                    <div class="text-2xl font-bold text-green-600" x-text="'$' + calculateROI().savings + 'K'"></div>
+                                </div>
+
+                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                    <div class="text-sm text-gray-600 mb-1">Payback Period</div>
+                                    <div class="text-2xl font-bold text-gray-800" x-text="calculateROI().payback + ' months'"></div>
+                                </div>
+
+                                <div class="bg-white rounded-lg p-4 border border-gray-200">
+                                    <div class="text-sm text-gray-600 mb-1">3-Year ROI</div>
+                                    <div class="text-2xl font-bold text-purple-600" x-text="calculateROI().threeYearROI + '%'"></div>
+                                </div>
+                            </div>
+
+                            <!-- Detailed Breakdown -->
+                            <div class="bg-gray-50 rounded-lg p-6 border border-gray-200">
+                                <h5 class="font-bold text-gray-800 mb-3">Detailed Breakdown</h5>
+                                <div class="space-y-2 text-sm">
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Time Savings per Person/Week:</span>
+                                        <span class="font-semibold" x-text="Math.round(calculateROI().savings * 1000 / (teamSize * 52)) + ' hours'"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">Year 1 Net Gain:</span>
+                                        <span class="font-semibold text-green-600" x-text="'$' + Math.round(calculateROI().savings - calculateROI().investment.split('-')[0].replace(/[^0-9]/g, '')) + 'K'"></span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-gray-600">3-Year Total Savings:</span>
+                                        <span class="font-semibold text-green-600" x-text="'$' + (calculateROI().savings * 3) + 'K'"></span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                                <div class="flex items-start">
+                                    <div class="text-yellow-600 mr-2">⚠️</div>
+                                    <div class="text-xs text-gray-700">
+                                        <strong>Note:</strong> These are conservative estimates. Actual results may vary based on
+                                        implementation quality, organizational readiness, and change management.
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="currentView === 'comparison'">
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Technology Comparison</h3>
+
+                    <div class="comparison-grid">
+                        <div class="comparison-cell comparison-header"></div>
+                        <div class="comparison-cell comparison-header text-center">Agent Spec (YAML)</div>
+                        <div class="comparison-cell comparison-header text-center">Claude agent.md</div>
+                        <div class="comparison-cell comparison-header text-center">Workflow (YAML)</div>
+                        <div class="comparison-cell comparison-header text-center">MCP Server</div>
+
+                        <div class="comparison-cell font-semibold">Purpose</div>
+                        <div class="comparison-cell">Production multi-agent systems</div>
+                        <div class="comparison-cell">Development coding help</div>
+                        <div class="comparison-cell">Business process automation</div>
+                        <div class="comparison-cell">Data/tool integration</div>
+
+                        <div class="comparison-cell font-semibold">AI Decision Making</div>
+                        <div class="comparison-cell">✅ Yes</div>
+                        <div class="comparison-cell">✅ Yes (dev-time)</div>
+                        <div class="comparison-cell">❌ No</div>
+                        <div class="comparison-cell">N/A</div>
+
+                        <div class="comparison-cell font-semibold">Runs in Production</div>
+                        <div class="comparison-cell">✅ Yes</div>
+                        <div class="comparison-cell">❌ No</div>
+                        <div class="comparison-cell">✅ Yes</div>
+                        <div class="comparison-cell">✅ Yes (infrastructure)</div>
+
+                        <div class="comparison-cell font-semibold">Platform Agnostic</div>
+                        <div class="comparison-cell">✅ Yes</div>
+                        <div class="comparison-cell">❌ Claude only</div>
+                        <div class="comparison-cell">✅ Yes</div>
+                        <div class="comparison-cell">✅ Yes</div>
+
+                        <div class="comparison-cell font-semibold">When to Use</div>
+                        <div class="comparison-cell">24/7 autonomous agents</div>
+                        <div class="comparison-cell">Coding assistance in IDE</div>
+                        <div class="comparison-cell">Approval gates, rules</div>
+                        <div class="comparison-cell">Connecting data sources</div>
+                    </div>
+                </div>
+            </div>
+
+            <div x-show="currentView === 'export'">
+                <div class="bg-white rounded-lg shadow-lg p-8">
+                    <h3 class="text-2xl font-bold text-gray-800 mb-4">Export Generator</h3>
+                    <p class="text-gray-600">Generate deployment packages and documentation (coming soon)</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        function agentFramework() {
+            return {
+                currentView: 'dashboard',
+                selectedIndustry: 'creative-marketing',
+                selectedAgent: null,
+                agentTab: 'overview',
+                config: null,
+
+                // Config Builder
+                builderConfig: {
+                    name: '',
+                    description: '',
+                    industry: 'creative-marketing',
+                    maturity: 'bronze',
+                    autonomy: 'high',
+                    mcpServers: []
+                },
+                generatedYAML: '',
+
+                // ROI Calculator
+                roiIndustry: 'creative-marketing',
+                roiPhase: 'bronze',
+                currentCost: 500,
+                teamSize: 10,
+
+                async init() {
+                    const response = await fetch('./data/agents-config.json');
+                    this.config = await response.json();
+
+                    // Initialize highlight.js
+                    setTimeout(() => {
+                        document.querySelectorAll('pre code').forEach((block) => {
+                            hljs.highlightElement(block);
+                        });
+                    }, 100);
+                },
+
+                getViewTitle() {
+                    const titles = {
+                        'dashboard': 'Framework Dashboard',
+                        'getting-started': 'Getting Started Guide',
+                        'industries': 'Industry Explorer',
+                        'agent-explorer': 'Agent Deep Dive',
+                        'agent-teams': 'Multi-Agent Teams & Orchestration',
+                        'implementation': 'Implementation Architecture',
+                        'mcp-infrastructure': 'MCP Infrastructure',
+                        'decision-framework': 'Technology Decision Framework',
+                        'config-builder': 'Configuration Builder',
+                        'roi-calculator': 'ROI Calculator',
+                        'comparison': 'Technology Comparison',
+                        'export': 'Export & Deploy'
+                    };
+                    return titles[this.currentView] || 'Oracle AI CoE';
+                },
+
+                getViewDescription() {
+                    const descriptions = {
+                        'dashboard': 'Overview of the multi-agent framework and quick navigation',
+                        'getting-started': 'Learn about file types and when to use each technology',
+                        'industries': 'Explore agent teams by industry',
+                        'agent-explorer': 'Deep dive into agent specifications and configurations',
+                        'agent-teams': 'How agents collaborate as teams and orchestration patterns',
+                        'implementation': 'Technical architecture, deployment, and enterprise integration',
+                        'mcp-infrastructure': 'MCP server details and integration patterns',
+                        'decision-framework': 'Decision tree for selecting the right technology',
+                        'config-builder': 'Generate custom agent configurations',
+                        'roi-calculator': 'Calculate expected ROI for your implementation',
+                        'comparison': 'Side-by-side technology comparison',
+                        'export': 'Export configurations and generate deployment packages'
+                    };
+                    return descriptions[this.currentView] || '';
+                },
+
+                getTotalAgents() {
+                    if (!this.config) return 0;
+                    return Object.values(this.config.industries).reduce((sum, industry) => sum + industry.agents.length, 0);
+                },
+
+                getTotalMCPServers() {
+                    if (!this.config) return 0;
+                    const uniqueServers = new Set();
+                    Object.values(this.config.industries).forEach(industry => {
+                        industry.mcpServers.forEach(server => uniqueServers.add(server.name));
+                    });
+                    return uniqueServers.size;
+                },
+
+                getIndustryData() {
+                    return this.config?.industries[this.selectedIndustry];
+                },
+
+                getSelectedAgent() {
+                    const industry = this.getIndustryData();
+                    return industry?.agents.find(a => a.id === this.selectedAgent);
+                },
+
+                getMCPServerDescription(serverName) {
+                    const industry = this.getIndustryData();
+                    const server = industry?.mcpServers.find(s => s.name === serverName);
+                    return server?.description || 'Data source integration';
+                },
+
+                getMCPServerDataFlow(serverName) {
+                    const industry = this.getIndustryData();
+                    const server = industry?.mcpServers.find(s => s.name === serverName);
+                    return server?.dataFlow || 'on-demand';
+                },
+
+                generateFullAgentSpec() {
+                    const agent = this.getSelectedAgent();
+                    if (!agent) return '';
+
+                    return `agent:
+  name: "${agent.id}"
+  version: "1.0.0"
+  description: "${agent.role}"
+
+  metadata:
+    industry: "${this.selectedIndustry}"
+    maturity_level: "${agent.maturityLevel}"
+    autonomous_level: "${agent.autonomyLevel}"
+
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+      temperature: 0.3
+      max_tokens: 4096
+
+  tools:${agent.mcpServers.map(server => `
+    - name: "${server.replace('-mcp', '_tool')}"
+      type: "mcp_server"
+      mcp_server: "${server}"`).join('')}
+
+  mcp_servers:${agent.mcpServers.map(server => `
+    - name: "${server}"
+      endpoint: "\${MCP_${server.toUpperCase().replace(/-/g, '_')}_ENDPOINT}"
+      authentication:
+        type: "oauth2"
+        scopes: ["read:data"]`).join('')}
+
+  governance:
+    audit_all_actions: true
+    approval_required: ${agent.autonomyLevel === 'medium' ? '["critical_actions"]' : '[]'}
+
+  business_impact:
+    primary_kpi: "${agent.businessImpact.primaryKPI}"
+    target_improvement: "${agent.businessImpact.targetImprovement || agent.businessImpact.target}"`;
+                },
+
+                generateMCPIntegrationCode() {
+                    const agent = this.getSelectedAgent();
+                    if (!agent) return '';
+
+                    return `# MCP Server Configuration for ${agent.name}
+
+mcp_servers:${agent.mcpServers.map(server => `
+  - name: "${server}"
+    endpoint: "\${MCP_${server.toUpperCase().replace(/-/g, '_')}_ENDPOINT}"
+
+    authentication:
+      type: "oauth2"
+      client_id: "\${${server.toUpperCase().replace(/-/g, '_')}_CLIENT_ID}"
+      client_secret: "\${${server.toUpperCase().replace(/-/g, '_')}_CLIENT_SECRET}"
+      token_url: "\${${server.toUpperCase().replace(/-/g, '_')}_TOKEN_URL}"
+      scopes: ["read:data", "write:data"]
+
+    retry_policy:
+      max_attempts: 3
+      backoff: "exponential"
+      initial_delay_ms: 1000
+
+    rate_limiting:
+      requests_per_minute: 60
+      burst_size: 10
+
+    timeout_ms: 30000
+
+    health_check:
+      enabled: true
+      interval_seconds: 60
+      endpoint: "/health"`).join('')}`;
+                },
+
+                copyCode(elementId) {
+                    const code = document.getElementById(elementId).textContent;
+                    navigator.clipboard.writeText(code).then(() => {
+                        alert('Code copied to clipboard!');
+                    });
+                },
+
+                // Config Builder Functions
+                generateConfig() {
+                    const { name, description, industry, maturity, autonomy, mcpServers } = this.builderConfig;
+
+                    if (!name || !description) {
+                        alert('Please fill in Agent Name and Description');
+                        return;
+                    }
+
+                    this.generatedYAML = `agent:
+  name: "${name}"
+  version: "1.0.0"
+  description: "${description}"
+
+  metadata:
+    industry: "${industry}"
+    maturity_level: "${maturity}"
+    autonomous_level: "${autonomy}"
+
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+      temperature: 0.3
+      max_tokens: 4096
+
+  tools:${mcpServers.map(server => `
+    - name: "${server.replace('-mcp', '_tool')}"
+      type: "mcp_server"
+      mcp_server: "${server}"`).join('')}
+
+  mcp_servers:${mcpServers.map(server => `
+    - name: "${server}"
+      endpoint: "\${MCP_${server.toUpperCase().replace(/-/g, '_')}_ENDPOINT}"
+      authentication:
+        type: "oauth2"
+        scopes: ["read:data"]`).join('')}
+
+  governance:
+    audit_all_actions: true
+    approval_required: ${autonomy === 'medium' ? '["critical_actions"]' : '[]'}
+
+  monitoring:
+    log_level: "info"
+    metrics_enabled: true`;
+
+                    // Highlight the generated code
+                    setTimeout(() => {
+                        const codeBlock = document.getElementById('generatedConfig');
+                        if (codeBlock) {
+                            hljs.highlightElement(codeBlock);
+                        }
+                    }, 100);
+                },
+
+                copyGeneratedConfig() {
+                    if (!this.generatedYAML) {
+                        alert('Please generate a configuration first');
+                        return;
+                    }
+                    navigator.clipboard.writeText(this.generatedYAML).then(() => {
+                        alert('Configuration copied to clipboard!');
+                    });
+                },
+
+                // ROI Calculator Functions
+                calculateROI() {
+                    if (!this.config) return {
+                        investment: '$0',
+                        efficiencyGain: '0%',
+                        annualSavings: '$0',
+                        paybackPeriod: '0 months',
+                        threeYearROI: '0%'
+                    };
+
+                    const industryData = this.config.industries[this.roiIndustry];
+                    const roiData = industryData?.roi?.[this.roiPhase];
+
+                    if (!roiData) return {
+                        investment: '$0',
+                        efficiencyGain: '0%',
+                        annualSavings: '$0',
+                        paybackPeriod: '0 months',
+                        threeYearROI: '0%'
+                    };
+
+                    // Parse investment range (e.g., "$75K-$125K" -> average)
+                    const investmentMatch = roiData.investment.match(/\$(\d+)K-\$(\d+)K/);
+                    const avgInvestment = investmentMatch
+                        ? (parseInt(investmentMatch[1]) + parseInt(investmentMatch[2])) / 2 * 1000
+                        : 100000;
+
+                    // Parse gain percentage
+                    const gainMatch = roiData.gain.match(/(\d+)%/);
+                    const gainPercent = gainMatch ? parseInt(gainMatch[1]) : 20;
+
+                    // Calculate values
+                    const annualCost = this.currentCost * 12 * this.teamSize;
+                    const efficiencyGain = gainPercent;
+                    const annualSavings = annualCost * (efficiencyGain / 100);
+                    const paybackMonths = Math.ceil((avgInvestment / annualSavings) * 12);
+                    const threeYearSavings = (annualSavings * 3) - avgInvestment;
+                    const threeYearROI = ((threeYearSavings / avgInvestment) * 100).toFixed(0);
+
+                    return {
+                        investment: roiData.investment,
+                        efficiencyGain: `${efficiencyGain}%`,
+                        annualSavings: `$${Math.round(annualSavings / 1000)}K`,
+                        paybackPeriod: `${paybackMonths} months`,
+                        threeYearROI: `${threeYearROI}%`
+                    };
+                },
+
+                calculateDetailedROI() {
+                    if (!this.config) return {
+                        timeSavings: '0 hours/week',
+                        yearOneNet: '$0',
+                        threeYearTotal: '$0'
+                    };
+
+                    const industryData = this.config.industries[this.roiIndustry];
+                    const roiData = industryData?.roi?.[this.roiPhase];
+
+                    if (!roiData) return {
+                        timeSavings: '0 hours/week',
+                        yearOneNet: '$0',
+                        threeYearTotal: '$0'
+                    };
+
+                    // Parse investment
+                    const investmentMatch = roiData.investment.match(/\$(\d+)K-\$(\d+)K/);
+                    const avgInvestment = investmentMatch
+                        ? (parseInt(investmentMatch[1]) + parseInt(investmentMatch[2])) / 2 * 1000
+                        : 100000;
+
+                    // Parse gain
+                    const gainMatch = roiData.gain.match(/(\d+)%/);
+                    const gainPercent = gainMatch ? parseInt(gainMatch[1]) : 20;
+
+                    // Calculate
+                    const annualCost = this.currentCost * 12 * this.teamSize;
+                    const annualSavings = annualCost * (gainPercent / 100);
+                    const yearOneNet = annualSavings - avgInvestment;
+                    const threeYearTotal = (annualSavings * 3) - avgInvestment;
+
+                    // Estimate time savings (rough approximation: 1% efficiency = ~0.4 hours/week per person)
+                    const weeklyTimeSavings = gainPercent * 0.4 * this.teamSize;
+
+                    return {
+                        timeSavings: `${weeklyTimeSavings.toFixed(1)} hours/week`,
+                        yearOneNet: yearOneNet < 0 ? `-$${Math.abs(Math.round(yearOneNet / 1000))}K` : `$${Math.round(yearOneNet / 1000)}K`,
+                        threeYearTotal: `$${Math.round(threeYearTotal / 1000)}K`
+                    };
+                }
+            }
+        }
+
+        // Re-highlight code when tabs change
+        document.addEventListener('alpine:initialized', () => {
+            const observer = new MutationObserver(() => {
+                document.querySelectorAll('pre code:not(.hljs)').forEach((block) => {
+                    hljs.highlightElement(block);
+                });
+            });
+            observer.observe(document.body, { childList: true, subtree: true });
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+agent:
+  name: "security-monitor"
+  version: "1.0.0"
+  description: "Real-time transaction monitoring and exploit detection"
+  metadata:
+    industry: "web3"
+    maturity_level: "bronze"
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+  tools:
+    - name: "monitor_mempool"
+      type: "mcp_server"
+      mcp_server: "blockchain-mcp"
+    - name: "detect_exploits"
+      type: "mcp_server"
+      mcp_server: "security-mcp"
+  mcp_servers:
+    - name: "blockchain-mcp"
+      endpoint: "${MCP_BLOCKCHAIN_ENDPOINT}"
+      protocol: "websocket"
+    - name: "security-mcp"
+      endpoint: "${MCP_SECURITY_ENDPOINT}"
+  monitoring:
+    metrics:
+      - name: "threat_detection_latency"
+        target: "<1s"

@@ -1,0 +1,229 @@
+# Workflow: Campaign Launch Pipeline
+# Automates the end-to-end campaign launch process
+
+workflow:
+  name: "campaign-launch-pipeline"
+  version: "1.0.0"
+  description: "Orchestrates multi-channel campaign launch with automated strategy development and human approval gates"
+
+  metadata:
+    industry: "creative-marketing"
+    automation_level: "75%"
+    average_duration: "3_days"  # Down from 14 days manual
+
+  triggers:
+    - type: "api"
+      endpoint: "/campaigns/launch"
+      authentication: "required"
+    - type: "manual"
+      source: "project_management_tool"
+
+  inputs:
+    - name: "campaign_brief"
+      type: "object"
+      required: true
+      schema:
+        client_id: "string"
+        campaign_name: "string"
+        objectives: "array[string]"
+        target_audience: "object"
+        budget: "number"
+        duration_days: "number"
+        channels: "array[string]"  # email, social, paid_ads, seo
+
+    - name: "brand_guidelines"
+      type: "object"
+      required: true
+
+  steps:
+    - id: "intake"
+      name: "Validate Campaign Brief"
+      agent: "campaign-orchestrator"
+      action: "validate_brief"
+      inputs:
+        - "${campaign_brief}"
+      outputs:
+        - "validated_brief"
+      on_error: "notify_and_halt"
+
+    - id: "content_strategy"
+      name: "Generate Content Strategy"
+      agent: "content-strategist"
+      action: "campaign_content_ideation"
+      inputs:
+        - "${validated_brief}"
+      outputs:
+        - "content_recommendations"
+      parallel_group: "strategy_development"
+
+    - id: "seo_strategy"
+      name: "Develop SEO Strategy"
+      agent: "seo-optimizer"
+      action: "campaign_keyword_research"
+      inputs:
+        - campaign_theme: "${validated_brief.objectives}"
+        - target_audience: "${validated_brief.target_audience}"
+      outputs:
+        - "keyword_targets"
+      parallel_group: "strategy_development"
+
+    - id: "audience_segmentation"
+      name: "Segment Target Audience"
+      agent: "campaign-orchestrator"
+      action: "get_audience_segments"
+      mcp_server: "crm-mcp"
+      inputs:
+        - "${validated_brief.target_audience}"
+      outputs:
+        - "audience_segments"
+      parallel_group: "strategy_development"
+
+    - id: "aggregate_strategies"
+      name: "Aggregate All Strategies"
+      agent: "campaign-orchestrator"
+      action: "aggregate_strategies"
+      depends_on:
+        - "content_strategy"
+        - "seo_strategy"
+        - "audience_segmentation"
+      inputs:
+        - "${content_recommendations}"
+        - "${keyword_targets}"
+        - "${audience_segments}"
+      outputs:
+        - "integrated_strategy"
+
+    - id: "approval_gate_1"
+      name: "Strategic Approval"
+      type: "human_approval"
+      approver_role: "campaign_manager"
+      inputs:
+        - "${integrated_strategy}"
+      timeout: "24h"
+      notification_channels:
+        - "email:campaign-team@agency.com"
+        - "slack:#campaigns"
+      outputs:
+        - "approval_status"
+        - "feedback"
+      on_rejection:
+        action: "loop_back"
+        step: "aggregate_strategies"
+
+    - id: "content_creation"
+      name: "Create Campaign Content"
+      type: "external"  # Human creative team
+      inputs:
+        - "${integrated_strategy}"
+        - "${brand_guidelines}"
+      duration_estimate: "2_days"
+      outputs:
+        - "content_assets"
+
+    - id: "email_setup"
+      name: "Setup Email Campaign"
+      agent: "campaign-orchestrator"
+      action: "launch_email_campaign"
+      condition: "'email' in validated_brief.channels"
+      inputs:
+        - campaign_name: "${validated_brief.campaign_name}"
+        - audience_segments: "${audience_segments}"
+        - content_assets: "${content_assets}"
+      outputs:
+        - "email_campaign_id"
+      parallel_group: "execution"
+
+    - id: "social_setup"
+      name: "Schedule Social Media Posts"
+      agent: "social-media-manager"
+      action: "schedule_campaign_posts"
+      condition: "'social' in validated_brief.channels"
+      inputs:
+        - campaign_id: "${validated_brief.campaign_name}"
+        - content_assets: "${content_assets}"
+      outputs:
+        - "social_schedule"
+      parallel_group: "execution"
+
+    - id: "paid_ads_setup"
+      name: "Launch Paid Advertising"
+      agent: "campaign-orchestrator"
+      action: "launch_ad_campaigns"
+      condition: "'paid_ads' in validated_brief.channels"
+      inputs:
+        - platforms: ["google_ads", "meta", "linkedin"]
+        - budget: "${validated_brief.budget}"
+        - audience: "${audience_segments}"
+        - creatives: "${content_assets}"
+      outputs:
+        - "ad_campaign_ids"
+      parallel_group: "execution"
+
+    - id: "seo_implementation"
+      name: "Implement SEO Optimizations"
+      agent: "seo-optimizer"
+      action: "apply_optimizations"
+      condition: "'seo' in validated_brief.channels"
+      inputs:
+        - keyword_targets: "${keyword_targets}"
+        - content: "${content_assets}"
+      outputs:
+        - "seo_changes"
+      parallel_group: "execution"
+
+    - id: "launch_verification"
+      name: "Verify All Channels Live"
+      agent: "campaign-orchestrator"
+      action: "verify_launch"
+      depends_on:
+        - "email_setup"
+        - "social_setup"
+        - "paid_ads_setup"
+        - "seo_implementation"
+      timeout: "1h"
+
+    - id: "monitoring_setup"
+      name: "Start Performance Monitoring"
+      agent: "analytics-agent"
+      action: "start_monitoring"
+      inputs:
+        - campaign_id: "${validated_brief.campaign_name}"
+        - channels: "${validated_brief.channels}"
+        - kpis: ["ctr", "conversions", "roas", "engagement"]
+      schedule: "every_4_hours"
+      duration: "${validated_brief.duration_days}d"
+
+  outputs:
+    - name: "campaign_status"
+      value: "launched"
+    - name: "campaign_details"
+      value:
+        campaign_id: "${validated_brief.campaign_name}"
+        channels_active: "${validated_brief.channels}"
+        start_date: "${timestamp}"
+
+  notifications:
+    - event: "workflow_started"
+      channels: ["slack:#campaigns"]
+    - event: "approval_required"
+      channels: ["email", "slack"]
+    - event: "workflow_completed"
+      channels: ["slack:#campaigns", "email:stakeholders"]
+    - event: "workflow_failed"
+      channels: ["pagerduty", "slack:#urgent"]
+
+  error_handling:
+    retry_policy:
+      max_attempts: 3
+      backoff: "exponential"
+    on_failure:
+      action: "notify_and_halt"
+      rollback: "partial"  # Keep completed steps, mark as "incomplete"
+
+  metrics:
+    - name: "workflow_duration"
+      target: "3_days"
+    - name: "approval_time"
+      target: "8_hours"
+    - name: "success_rate"
+      target: ">95%"

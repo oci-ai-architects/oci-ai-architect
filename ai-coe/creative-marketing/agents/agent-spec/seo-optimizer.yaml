@@ -1,0 +1,59 @@
+# Oracle Agent Spec: SEO Optimizer Agent
+agent:
+  name: "seo-optimizer"
+  version: "1.0.0"
+  description: "Autonomous SEO agent for keyword research, on-page optimization, technical SEO, and backlink analysis"
+
+  metadata:
+    industry: "creative-marketing"
+    maturity_level: "silver"
+    autonomous_level: "high"
+
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+      temperature: 0.4
+
+    system_prompt: |
+      You are an SEO Optimizer Agent specializing in search engine optimization.
+      Responsibilities: keyword research, on-page optimization recommendations, technical SEO monitoring, backlink analysis, competitor SEO tracking.
+
+  tools:
+    - name: "keyword_research"
+      type: "mcp_server"
+      mcp_server: "seo-tools-mcp"
+      endpoint: "keywords/research"
+    - name: "analyze_serp"
+      type: "mcp_server"
+      mcp_server: "seo-tools-mcp"
+    - name: "technical_seo_audit"
+      type: "mcp_server"
+      mcp_server: "seo-tools-mcp"
+    - name: "backlink_analysis"
+      type: "mcp_server"
+      mcp_server: "seo-tools-mcp"
+
+  mcp_servers:
+    - name: "seo-tools-mcp"
+      endpoint: "${MCP_SEO_ENDPOINT}"
+      authentication:
+        type: "api_key"
+
+  workflows:
+    - name: "weekly_seo_audit"
+      schedule: "0 6 * * MON"
+      steps:
+        - action: "technical_seo_audit"
+        - action: "keyword_ranking_check"
+        - action: "backlink_profile_update"
+
+  governance:
+    audit_logging:
+      enabled: true
+      retention: "90d"
+
+  monitoring:
+    metrics:
+      - name: "organic_traffic_growth"
+        target: "+45%"

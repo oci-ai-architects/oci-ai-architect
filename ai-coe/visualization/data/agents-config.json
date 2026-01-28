@@ -1,0 +1,322 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-15",
+  "industries": {
+    "creative-marketing": {
+      "name": "Creative/Marketing",
+      "description": "Multi-agent system for marketing agencies",
+      "maturityLevels": ["bronze", "silver", "gold"],
+      "agents": [
+        {
+          "id": "content-strategist",
+          "name": "Content Strategist Agent",
+          "role": "Market trend analysis, content calendar management",
+          "maturityLevel": "bronze",
+          "autonomyLevel": "high",
+          "businessImpact": {
+            "primaryKPI": "content_engagement_rate",
+            "targetImprovement": "+35%",
+            "timeSavings": "5.5 hours/week"
+          },
+          "mcpServers": ["analytics-mcp", "seo-tools-mcp", "social-media-mcp", "content-management-mcp"],
+          "interactsWith": ["seo-optimizer", "campaign-orchestrator", "analytics-agent"],
+          "dataProcessing": "Real-time trend analysis, batch content planning"
+        },
+        {
+          "id": "campaign-orchestrator",
+          "name": "Campaign Orchestrator Agent",
+          "role": "Multi-channel campaign coordination",
+          "maturityLevel": "silver",
+          "autonomyLevel": "medium",
+          "businessImpact": {
+            "primaryKPI": "campaign_launch_time",
+            "targetImprovement": "-50%",
+            "costSavings": "$150K annually"
+          },
+          "mcpServers": ["marketing-automation-mcp", "ad-platform-mcp", "crm-mcp", "analytics-mcp"],
+          "interactsWith": ["content-strategist", "seo-optimizer", "social-media-manager", "analytics-agent"],
+          "dataProcessing": "Real-time performance monitoring, orchestration"
+        },
+        {
+          "id": "seo-optimizer",
+          "name": "SEO Optimizer Agent",
+          "role": "Keyword research, on-page optimization",
+          "maturityLevel": "silver",
+          "autonomyLevel": "high",
+          "businessImpact": {
+            "primaryKPI": "organic_traffic",
+            "targetImprovement": "+45%",
+            "timeframe": "6 months"
+          },
+          "mcpServers": ["seo-tools-mcp", "analytics-mcp", "content-management-mcp"],
+          "interactsWith": ["content-strategist", "campaign-orchestrator"],
+          "dataProcessing": "Daily keyword tracking, on-demand optimization"
+        },
+        {
+          "id": "analytics-agent",
+          "name": "Analytics Agent",
+          "role": "Real-time performance monitoring",
+          "maturityLevel": "bronze",
+          "autonomyLevel": "high",
+          "businessImpact": {
+            "primaryKPI": "insight_delivery_time",
+            "targetImprovement": "-80%",
+            "baseline": "2 days to 4 hours"
+          },
+          "mcpServers": ["analytics-mcp", "data-warehouse-mcp", "ml-model-mcp"],
+          "interactsWith": ["campaign-orchestrator", "content-strategist"],
+          "dataProcessing": "Real-time streaming, predictive analytics"
+        },
+        {
+          "id": "social-media-manager",
+          "name": "Social Media Manager Agent",
+          "role": "Social media scheduling & engagement",
+          "maturityLevel": "bronze",
+          "autonomyLevel": "medium",
+          "businessImpact": {
+            "primaryKPI": "engagement_rate",
+            "targetImprovement": "+40%",
+            "responseTime": "< 1 hour"
+          },
+          "mcpServers": ["social-media-mcp", "sentiment-mcp", "content-management-mcp"],
+          "interactsWith": ["campaign-orchestrator", "content-strategist"],
+          "dataProcessing": "Real-time engagement monitoring, sentiment analysis"
+        }
+      ],
+      "mcpServers": [
+        {"name": "analytics-mcp", "description": "Google Analytics 4, Adobe Analytics", "dataFlow": "real-time"},
+        {"name": "social-media-mcp", "description": "Twitter, LinkedIn, Facebook, Instagram APIs", "dataFlow": "real-time + hourly"},
+        {"name": "crm-mcp", "description": "HubSpot, Salesforce", "dataFlow": "event-driven + daily"},
+        {"name": "seo-tools-mcp", "description": "SEMrush, Ahrefs, Moz", "dataFlow": "daily"},
+        {"name": "ad-platform-mcp", "description": "Google Ads, Meta, LinkedIn", "dataFlow": "hourly"},
+        {"name": "marketing-automation-mcp", "description": "HubSpot, Marketo", "dataFlow": "event-driven"},
+        {"name": "content-management-mcp", "description": "WordPress, Contentful", "dataFlow": "on-demand"}
+      ],
+      "workflows": [
+        {"name": "campaign-launch", "automation": "75%", "avgDuration": "3 days"},
+        {"name": "content-approval", "automation": "60%", "avgDuration": "1.5 days"}
+      ],
+      "roi": {
+        "bronze": {"investment": "$75K-$125K", "timeframe": "3 months", "gain": "20%"},
+        "silver": {"investment": "$150K-$250K", "timeframe": "9 months", "gain": "40%"},
+        "gold": {"investment": "$300K-$500K", "timeframe": "18 months", "gain": "50%+"}
+      }
+    },
+    "automotive": {
+      "name": "Automotive",
+      "description": "Multi-agent system for automotive manufacturing",
+      "maturityLevels": ["bronze", "silver", "gold"],
+      "agents": [
+        {
+          "id": "quality-control-agent",
+          "name": "Quality Control Agent",
+          "role": "Real-time defect detection",
+          "maturityLevel": "bronze",
+          "autonomyLevel": "high",
+          "businessImpact": {
+            "primaryKPI": "defect_rate",
+            "targetImprovement": "-40%",
+            "costSavings": "$800K/year"
+          },
+          "mcpServers": ["computer-vision-mcp", "iot-mcp", "manufacturing-mcp"],
+          "interactsWith": ["predictive-maintenance", "iot-monitor"],
+          "dataProcessing": "Real-time (< 100ms latency)"
+        },
+        {
+          "id": "supply-chain-optimizer",
+          "name": "Supply Chain Optimizer Agent",
+          "role": "Inventory prediction, JIT logistics",
+          "maturityLevel": "silver",
+          "autonomyLevel": "high",
+          "businessImpact": {
+            "primaryKPI": "lead_time",
+            "targetImprovement": "-35%",
+            "costSavings": "$500K/year"
+          },
+          "mcpServers": ["erp-mcp", "logistics-mcp", "weather-api-mcp"],
+          "interactsWith": ["compliance-checker"],
+          "dataProcessing": "Hourly batch + event-driven"
+        },
+        {
+          "id": "iot-monitor",
+          "name": "IoT Monitor Agent",
+          "role": "Fleet telemetry processing",
+          "maturityLevel": "bronze",
+          "autonomyLevel": "high",
+          "businessImpact": {
+            "primaryKPI": "monitoring_coverage",
+            "target": "100% uptime",
+            "manualReduction": "50%"
+          },
+          "mcpServers": ["iot-mcp", "fleet-management-mcp"],
+          "interactsWith": ["predictive-maintenance", "quality-control-agent"],
+          "dataProcessing": "Real-time streaming (MQTT, Kafka)"
+        },
+        {
+          "id": "predictive-maintenance",
+          "name": "Predictive Maintenance Agent",
+          "role": "ML-based failure prediction",
+          "maturityLevel": "bronze",
+          "autonomyLevel": "high",
+          "businessImpact": {
+            "primaryKPI": "maintenance_cost",
+            "targetImprovement": "-30%",
+            "downtimeReduction": "45%"
+          },
+          "mcpServers": ["timeseries-mcp", "ml-model-mcp", "cmms-mcp"],
+          "interactsWith": ["iot-monitor", "quality-control-agent"],
+          "dataProcessing": "Time-series analysis, ML inference"
+        },
+        {
+          "id": "compliance-checker",
+          "name": "Compliance Checker Agent",
+          "role": "Regulatory compliance auditing",
+          "maturityLevel": "silver",
+          "autonomyLevel": "medium",
+          "businessImpact": {
+            "primaryKPI": "audit_duration",
+            "targetImprovement": "-80%",
+            "complianceRate": "100%"
+          },
+          "mcpServers": ["compliance-mcp", "document-mcp", "erp-mcp"],
+          "interactsWith": ["supply-chain-optimizer"],
+          "dataProcessing": "Batch audits, real-time alerts"
+        }
+      ],
+      "mcpServers": [
+        {"name": "iot-mcp", "description": "MQTT, Kafka streaming from sensors", "dataFlow": "real-time (sub-second)"},
+        {"name": "computer-vision-mcp", "description": "Production line cameras, CV models", "dataFlow": "real-time (30-60 FPS)"},
+        {"name": "manufacturing-mcp", "description": "MES, SCADA, PLCs", "dataFlow": "real-time + batch"},
+        {"name": "erp-mcp", "description": "SAP ERP", "dataFlow": "hourly + event-driven"},
+        {"name": "timeseries-mcp", "description": "InfluxDB, TimescaleDB", "dataFlow": "batch (nightly)"},
+        {"name": "cmms-mcp", "description": "Maintenance management systems", "dataFlow": "event-driven"}
+      ],
+      "workflows": [
+        {"name": "production-line-monitoring", "automation": "90%", "latency": "< 100ms"},
+        {"name": "defect-detection", "automation": "85%", "avgDuration": "real-time"}
+      ],
+      "roi": {
+        "bronze": {"investment": "$100K-$150K", "timeframe": "3 months", "gain": "20%"},
+        "silver": {"investment": "$200K-$350K", "timeframe": "9 months", "gain": "40%"},
+        "gold": {"investment": "$400K-$600K", "timeframe": "18 months", "gain": "50%+"}
+      }
+    },
+    "web3": {
+      "name": "Web3",
+      "description": "Multi-agent system for Web3 protocols",
+      "maturityLevels": ["bronze", "silver", "gold"],
+      "agents": [
+        {
+          "id": "smart-contract-auditor",
+          "name": "Smart Contract Auditor Agent",
+          "role": "Automated vulnerability scanning",
+          "maturityLevel": "bronze",
+          "autonomyLevel": "high",
+          "businessImpact": {
+            "primaryKPI": "deployment_time",
+            "targetImprovement": "-60%",
+            "vulnerabilityReduction": "70%"
+          },
+          "mcpServers": ["security-tools-mcp", "blockchain-mcp", "github-mcp"],
+          "interactsWith": ["security-monitor"],
+          "dataProcessing": "Static analysis, formal verification"
+        },
+        {
+          "id": "defi-analyst",
+          "name": "DeFi Analyst Agent",
+          "role": "Portfolio optimization, yield farming",
+          "maturityLevel": "silver",
+          "autonomyLevel": "medium",
+          "businessImpact": {
+            "primaryKPI": "portfolio_returns",
+            "targetImprovement": "+25%",
+            "liquidationReduction": "90%"
+          },
+          "mcpServers": ["web3-mcp", "oracle-mcp", "dex-mcp"],
+          "interactsWith": ["security-monitor"],
+          "dataProcessing": "Real-time price monitoring, rebalancing"
+        },
+        {
+          "id": "nft-manager",
+          "name": "NFT Manager Agent",
+          "role": "NFT minting & metadata management",
+          "maturityLevel": "silver",
+          "autonomyLevel": "high",
+          "businessImpact": {
+            "primaryKPI": "minting_time",
+            "targetImprovement": "-80%",
+            "operationalSavings": "significant"
+          },
+          "mcpServers": ["blockchain-mcp", "ipfs-mcp", "nft-marketplace-mcp"],
+          "interactsWith": [],
+          "dataProcessing": "Batch minting, IPFS pinning"
+        },
+        {
+          "id": "dao-coordinator",
+          "name": "DAO Coordinator Agent",
+          "role": "Governance automation",
+          "maturityLevel": "gold",
+          "autonomyLevel": "medium",
+          "businessImpact": {
+            "primaryKPI": "proposal_execution_time",
+            "targetImprovement": "-70%",
+            "participationIncrease": "40%"
+          },
+          "mcpServers": ["dao-mcp", "governance-mcp", "blockchain-mcp"],
+          "interactsWith": [],
+          "dataProcessing": "Event-driven, proposal lifecycle automation"
+        },
+        {
+          "id": "security-monitor",
+          "name": "Security Monitor Agent",
+          "role": "Real-time exploit detection",
+          "maturityLevel": "bronze",
+          "autonomyLevel": "high",
+          "businessImpact": {
+            "primaryKPI": "threat_response_time",
+            "target": "< 1 second",
+            "lossPrevention": "$5M+"
+          },
+          "mcpServers": ["blockchain-mcp", "security-mcp", "alert-mcp"],
+          "interactsWith": ["smart-contract-auditor", "defi-analyst"],
+          "dataProcessing": "Mempool monitoring, real-time alerting"
+        }
+      ],
+      "mcpServers": [
+        {"name": "blockchain-mcp", "description": "Ethereum, Polygon, Arbitrum, Solana nodes", "dataFlow": "WebSocket (real-time)"},
+        {"name": "web3-mcp", "description": "Coingecko, DEX aggregators, Chainlink", "dataFlow": "real-time"},
+        {"name": "ipfs-mcp", "description": "IPFS, Pinata, NFT.storage", "dataFlow": "on-demand"},
+        {"name": "security-tools-mcp", "description": "Slither, Mythril, Echidna", "dataFlow": "on-demand"},
+        {"name": "dao-mcp", "description": "Snapshot, Tally, Aragon", "dataFlow": "event-driven"},
+        {"name": "dex-mcp", "description": "Uniswap, Curve, Balancer", "dataFlow": "real-time"}
+      ],
+      "workflows": [
+        {"name": "smart-contract-deployment", "automation": "70%", "avgDuration": "2 days"},
+        {"name": "token-launch", "automation": "60%", "avgDuration": "1 week"}
+      ],
+      "roi": {
+        "bronze": {"investment": "$80K-$120K", "timeframe": "3 months", "gain": "30%"},
+        "silver": {"investment": "$180K-$280K", "timeframe": "9 months", "gain": "50%"},
+        "gold": {"investment": "$350K-$500K", "timeframe": "18 months", "gain": "70%+"}
+      }
+    }
+  },
+  "technologyDecisions": {
+    "agentSpec": {
+      "useWhen": ["Production multi-agent systems", "Platform-agnostic deployment", "Enterprise governance required"],
+      "fileLocation": "{industry}/agents/agent-spec/*.yaml"
+    },
+    "claudeAgentMd": {
+      "useWhen": ["Development-time coding assistance", "Building/debugging software", "Code reviews"],
+      "fileLocation": "{industry}/agents/claude/*.md"
+    },
+    "workflows": {
+      "useWhen": ["Deterministic processes", "Human-in-the-loop required", "Rule-based orchestration"],
+      "fileLocation": "{industry}/workflows/*.yaml"
+    },
+    "mcpServers": {
+      "useWhen": ["Data source integration", "Tool APIs", "Real-time data access", "Security/permissions"],
+      "documentation": "{industry}/mcp-servers.md"
+    }
+  }
+}

@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SDLC for Neuroscience AI Solution</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Lucide Icons CDN -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-gradient-to-br from-fuchsia-50 to-cyan-50 min-h-screen flex flex-col items-center">
+  <header class="w-full py-10 bg-gradient-to-r from-blue-900 to-indigo-500 shadow-lg mb-10">
+    <h1 class="text-4xl text-center font-extrabold text-white drop-shadow-lg mb-2 flex justify-center items-center gap-3">
+      <span id="cycle-top" class="inline"></span>
+      SDLC for Neuroscience AI Solution
+    </h1>
+    <p class="mt-2 text-xl text-white text-center opacity-90">
+      Step-by-step journey: building a next-gen multimodal brain analytics platform on OCI
+    </p>
+  </header>
+  <main class="w-full max-w-4xl px-4 flex flex-col space-y-9">
+    <!-- 1. Product Vision & Objectives -->
+    <section class="flex bg-white rounded-2xl shadow-lg border-l-8 border-indigo-400 px-6 py-5 gap-5">
+      <div id="vision-icon" class="icon shrink-0 mt-1"></div>
+      <div>
+        <h2 class="flex items-center text-lg font-bold text-indigo-700">1. Define Product Vision & Objectives</h2>
+        <p class="text-gray-700 mt-1">Unite research and healthcare: Detect and understand cognitive disorders early via AI-driven fusion of MRI, EEG, and behavioral data — with secure, scalable cloud deployment.</p>
+        <ul class="text-gray-500 text-sm mt-3 ml-4 list-disc">
+          <li>Key Objective: Accurate, early-risk scoring for dementia and neurological disease</li>
+          <li>Benefit: Accelerate research and clinical interventions</li>
+          <li>Stakeholders: Clinicians, neuroscientists, tech leads</li>
+        </ul>
+      </div>
+    </section>
+    <!-- 2. Use Cases -->
+    <section class="flex bg-white rounded-2xl shadow-lg border-l-8 border-cyan-400 px-6 py-5 gap-5">
+      <div id="cases-icon" class="icon shrink-0 mt-1"></div>
+      <div>
+        <h2 class="flex items-center text-lg font-bold text-cyan-700">2. Create Use Cases</h2>
+        <ul class="text-gray-700 mt-1 ml-4 list-disc">
+          <li><b>UC-001:</b> Upload multimodal data (MRI, EEG, tests) for analysis (<span class="text-cyan-500">Clinician</span>)</li>
+          <li><b>UC-002:</b> Automatic data fusion > view risk score report (<span class="text-cyan-500">Researcher</span>)</li>
+          <li><b>UC-003:</b> Query knowledge base for biomarker discovery (<span class="text-cyan-500">Scientist</span>)</li>
+        </ul>
+        <div class="text-gray-500 text-xs mt-2">Each use case tightly links to real neuroscientific problems and end-user needs.</div>
+      </div>
+    </section>
+    <!-- 3. Requirements & User Stories -->
+    <section class="flex bg-white rounded-2xl shadow-lg border-l-8 border-emerald-400 px-6 py-5 gap-5">
+      <div id="requirements-icon" class="icon shrink-0 mt-1"></div>
+      <div>
+        <h2 class="flex items-center text-lg font-bold text-emerald-700">3. Document Requirements & User Stories</h2>
+        <ul class="text-gray-700 mt-1 ml-4 list-disc">
+          <li><b>Functional:</b> Support DICOM, CSV, PDF upload; visualize all modalities; cross-subject comparisons; role-based access</li>
+          <li><b>Non-Functional:</b> HIPAA/GDPR, <1min full analysis, mobile-accessible UI</li>
+          <li><b>User Story:</b> As a clinician, I want to upload MRI and EEG data so that I can receive an integrated early-diagnosis risk score</li>
+        </ul>
+      </div>
+    </section>
+    <!-- 4. Refine User Stories & Acceptance Criteria -->
+    <section class="flex bg-white rounded-2xl shadow-lg border-l-8 border-lime-400 px-6 py-5 gap-5">
+      <div id="stories-icon" class="icon shrink-0 mt-1"></div>
+      <div>
+        <h2 class="flex items-center text-lg font-bold text-lime-700">4. Refine User Stories & Acceptance Criteria</h2>
+        <p class="text-gray-700 mt-1 mb-1">Make each story actionable and testable:</p>
+        <ul class="text-gray-700 ml-4 list-disc">
+          <li>Given a valid MRI file, when analyzed, then receive a risk score in <60 seconds</li>
+          <li>Given a corrupt EEG, then error feedback displayed and analysis not run</li>
+          <li>Given user not logged in, upload/access denied</li>
+        </ul>
+        <div class="text-gray-500 text-xs mt-2">Acceptance criteria ensure patient safety and robust prototype demo.</div>
+      </div>
+    </section>
+    <!-- 5. Wireframes & User Flows -->
+    <section class="flex bg-white rounded-2xl shadow-lg border-l-8 border-fuchsia-400 px-6 py-5 gap-5">
+      <div id="design-icon" class="icon shrink-0 mt-1"></div>
+      <div>
+        <h2 class="flex items-center text-lg font-bold text-fuchsia-700">5. Create Wireframes & User Flows</h2>
+        <ul class="text-gray-700 mt-1 ml-4 list-disc">
+          <li>Critical Screens: Patient upload, analysis dashboard, interactive results, knowledge search</li>
+          <li>User Flow: Upload data → Trigger Fusion → Get risk/insight → Explore details</li>
+          <li>Accessibility: High contrast, keyboard navigation, alt text for all brain images</li>
+        </ul>
+      </div>
+    </section>
+    <!-- 6. HTML Implementation -->
+    <section class="flex bg-white rounded-2xl shadow-lg border-l-8 border-blue-400 px-6 py-5 gap-5">
+      <div id="html-icon" class="icon shrink-0 mt-1"></div>
+      <div>
+        <h2 class="flex items-center text-lg font-bold text-blue-700">6. Implement HTML Structure</h2>
+        <ul class="text-gray-700 mt-1 ml-4 list-disc">
+          <li>index.html: Main UI with header, upload, results, knowledge tabs</li>
+          <li>Accessible forms and semantic sections (<code><main>, <section>, <form></code>...)</li>
+          <li>Components: Uploader, results grid, error alerts, login modal</li>
+        </ul>
+      </div>
+    </section>
+    <!-- 7. Add Interactivity -->
+    <section class="flex bg-white rounded-2xl shadow-lg border-l-8 border-yellow-400 px-6 py-5 gap-5">
+      <div id="js-icon" class="icon shrink-0 mt-1"></div>
+      <div>
+        <h2 class="flex items-center text-lg font-bold text-yellow-700">7. Add Interactivity with JavaScript</h2>
+        <ul class="text-gray-700 mt-1 ml-4 list-disc">
+          <li>File validation & progress, modal dialogs, responsive feedback</li>
+          <li>Live filter/search for case database and biomarker insights</li>
+          <li>Mocked API: Simulate backend analysis/results for user demo</li>
+        </ul>
+      </div>
+    </section>
+    <!-- 8. Test & Refine Prototype -->
+    <section class="flex bg-white rounded-2xl shadow-lg border-l-8 border-amber-400 px-6 py-5 gap-5">
+      <div id="test-icon" class="icon shrink-0 mt-1"></div>
+      <div>
+        <h2 class="flex items-center text-lg font-bold text-amber-700">8. Test & Refine Prototype</h2>
+        <ul class="text-gray-700 mt-1 ml-4 list-disc">
+          <li>Functional: Validate end-to-end data upload and analysis reporting</li>
+          <li>Edge: Handle invalid files, data gaps, error states gracefully</li>
+          <li>Accessibility/UX: Test with screen readers, on tablet/mobile</li>
+          <li>Browser compatibility, response time, stakeholder feedback</li>
+        </ul>
+      </div>
+    </section>
+    <!-- 9. Document & Present -->
+    <section class="flex bg-white rounded-2xl shadow-lg border-l-8 border-gray-400 px-6 py-5 gap-5">
+      <div id="doc-icon" class="icon shrink-0 mt-1"></div>
+      <div>
+        <h2 class="flex items-center text-lg font-bold text-gray-700">9. Document & Present Prototype</h2>
+        <ul class="text-gray-700 mt-1 ml-4 list-disc">
+          <li>One-pager: Vision, architecture, features, demo value</li>
+          <li>Slides: Problem, solution, live demo, results, roadmap</li>
+          <li>Demo script: Guide through upload, analysis, results, knowledge mining search</li>
+          <li>All mapped back to SDLC and neuroscience project needs</li>
+        </ul>
+        <div class="text-gray-500 text-xs mt-2">Comprehensive docs maximize clarity for both engineers and stakeholders.</div>
+      </div>
+    </section>
+  </main>
+  <footer class="mt-14 w-full text-center text-gray-400 text-sm pb-6">
+    &copy; 2025 Neuroscience SDLC Visualization &middot; Powered by Tailwind CSS & Lucide Icons
+  </footer>
+  <script>
+    lucide.createIcon('cycle').appendTo(document.getElementById('cycle-top'));
+    lucide.createIcon('compass').appendTo(document.getElementById('vision-icon'));
+    lucide.createIcon('list-todo').appendTo(document.getElementById('cases-icon'));
+    lucide.createIcon('clipboard-list').appendTo(document.getElementById('requirements-icon'));
+    lucide.createIcon('sticky-note').appendTo(document.getElementById('stories-icon'));
+    lucide.createIcon('layout-dashboard').appendTo(document.getElementById('design-icon'));
+    lucide.createIcon('file-code').appendTo(document.getElementById('html-icon'));
+    lucide.createIcon('wand2').appendTo(document.getElementById('js-icon'));
+    lucide.createIcon('check-square').appendTo(document.getElementById('test-icon'));
+    lucide.createIcon('book-open').appendTo(document.getElementById('doc-icon'));
+  </script>
+</body>
+</html>

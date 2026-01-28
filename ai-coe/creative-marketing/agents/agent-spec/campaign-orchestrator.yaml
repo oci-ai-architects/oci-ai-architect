@@ -1,0 +1,412 @@
+# Oracle Agent Spec: Campaign Orchestrator Agent
+# Industry: Creative/Marketing
+# Version: 1.0
+# Purpose: Multi-channel campaign coordination, budget management, performance optimization
+
+agent:
+  name: "campaign-orchestrator"
+  version: "1.0.0"
+  description: "Central coordinator for multi-channel marketing campaigns, managing budget allocation, performance optimization, and cross-agent collaboration."
+
+  metadata:
+    industry: "creative-marketing"
+    maturity_level: "silver"  # Phase 2 deployment
+    autonomous_level: "medium"  # 60% autonomous, 40% human oversight
+    business_impact:
+      primary_kpi: "campaign_launch_time"
+      target_improvement: "-50%"
+      cost_savings: "$150K annually"
+
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+      temperature: 0.3  # Low temperature for operational decisions
+      max_tokens: 8192  # Larger context for complex orchestration
+
+    system_prompt: |
+      You are the Campaign Orchestrator Agent - the central coordinator for all marketing campaigns.
+
+      Your responsibilities:
+      1. Coordinate campaign execution across email, social, paid ads, and SEO
+      2. Dynamically allocate and optimize budgets based on real-time performance
+      3. Trigger campaign adjustments and optimizations
+      4. Manage approval workflows (route to humans when needed)
+      5. Coordinate with other agents (Content Strategist, SEO Optimizer, Analytics, Social Media Manager)
+      6. Orchestrate A/B tests across channels
+
+      Decision-Making Framework:
+      - Budget reallocation: Autonomous up to 15% shift between channels
+      - Campaign pause: Requires human approval if spend >$5K
+      - Major strategy change: Always requires approval
+      - Performance optimization: Fully autonomous within guardrails
+
+      You have access to:
+      - Real-time campaign performance data
+      - Budget tracking systems
+      - All marketing platform APIs (Google Ads, Meta, LinkedIn, email)
+      - Other marketing agents for specialized tasks
+
+      Always provide:
+      - Clear rationale for decisions
+      - Expected impact of changes
+      - Risk assessment for major actions
+
+  tools:
+    - name: "launch_email_campaign"
+      description: "Launches an email campaign via marketing automation platform"
+      type: "mcp_server"
+      mcp_server: "marketing-automation-mcp"
+      endpoint: "campaigns/email/launch"
+      parameters:
+        campaign_name: "string"
+        audience_segments: "array[string]"
+        content_id: "string"
+        schedule: "string"  # ISO 8601 datetime or "immediate"
+      returns: "json"
+
+    - name: "adjust_ad_budget"
+      description: "Reallocates budget across paid advertising channels"
+      type: "mcp_server"
+      mcp_server: "ad-platform-mcp"
+      endpoint: "budget/adjust"
+      parameters:
+        platform: "string"  # "google_ads", "meta", "linkedin"
+        campaign_id: "string"
+        new_daily_budget: "number"
+        reason: "string"
+      requires_approval:
+        condition: "budget_change > 15%"
+        role: "campaign_manager"
+      returns: "json"
+
+    - name: "get_campaign_performance"
+      description: "Retrieves real-time campaign performance across all channels"
+      type: "mcp_server"
+      mcp_server: "analytics-mcp"
+      endpoint: "campaigns/performance"
+      parameters:
+        campaign_ids: "array[string]"
+        metrics: "array[string]"
+        date_range: "string"
+      returns: "json"
+
+    - name: "request_content_strategy"
+      description: "Requests content recommendations from Content Strategist Agent"
+      type: "agent_call"
+      target_agent: "content-strategist"
+      action: "campaign_content_ideation"
+      parameters:
+        campaign_brief: "object"
+      returns: "json"
+
+    - name: "request_seo_keywords"
+      description: "Requests keyword targets from SEO Optimizer Agent"
+      type: "agent_call"
+      target_agent: "seo-optimizer"
+      action: "campaign_keyword_research"
+      parameters:
+        campaign_theme: "string"
+        target_audience: "object"
+      returns: "json"
+
+    - name: "schedule_social_posts"
+      description: "Coordinates social media posting via Social Media Manager Agent"
+      type: "agent_call"
+      target_agent: "social-media-manager"
+      action: "schedule_campaign_posts"
+      parameters:
+        campaign_id: "string"
+        content_assets: "array[object]"
+        posting_schedule: "object"
+      returns: "json"
+
+    - name: "create_ab_test"
+      description: "Sets up A/B test for campaign optimization"
+      type: "mcp_server"
+      mcp_server: "marketing-automation-mcp"
+      endpoint: "experiments/create"
+      parameters:
+        test_name: "string"
+        variants: "array[object]"
+        traffic_split: "object"
+        success_metric: "string"
+        duration_days: "number"
+      returns: "json"
+
+    - name: "request_human_approval"
+      description: "Routes decision to human approver with context"
+      type: "workflow"
+      workflow: "human_approval_workflow"
+      parameters:
+        decision_type: "string"
+        context: "object"
+        recommended_action: "string"
+        risk_level: "string"
+        approver_role: "string"
+      returns: "json"
+
+  mcp_servers:
+    - name: "marketing-automation-mcp"
+      type: "http"
+      endpoint: "${MCP_MARKETING_AUTOMATION_ENDPOINT}"
+      authentication:
+        type: "oauth2"
+        token_endpoint: "${MCP_MA_TOKEN_ENDPOINT}"
+        client_id: "${MCP_MA_CLIENT_ID}"
+        client_secret: "${MCP_MA_CLIENT_SECRET}"
+
+    - name: "ad-platform-mcp"
+      type: "http"
+      endpoint: "${MCP_AD_PLATFORM_ENDPOINT}"
+      authentication:
+        type: "multi"  # Aggregates multiple ad platforms
+        platforms:
+          google_ads:
+            type: "oauth2"
+            credentials: "${GOOGLE_ADS_CREDENTIALS}"
+          meta:
+            type: "access_token"
+            token: "${META_ACCESS_TOKEN}"
+          linkedin:
+            type: "oauth2"
+            credentials: "${LINKEDIN_CREDENTIALS}"
+      rate_limit:
+        requests_per_minute: 100
+
+    - name: "analytics-mcp"
+      type: "http"
+      endpoint: "${MCP_ANALYTICS_ENDPOINT}"
+      authentication:
+        type: "oauth2"
+
+    - name: "crm-mcp"
+      type: "http"
+      endpoint: "${MCP_CRM_ENDPOINT}"
+      authentication:
+        type: "api_key"
+        key: "${MCP_CRM_API_KEY}"
+
+  workflows:
+    - name: "campaign_launch_orchestration"
+      trigger: "api"  # Triggered by project management system or manually
+      requires_approval:
+        - stage: "initial"
+          role: "campaign_manager"
+          timeout: "24h"
+      steps:
+        - name: "gather_requirements"
+          action: "parse_campaign_brief"
+          output: "campaign_spec"
+
+        - name: "content_strategy"
+          action: "request_content_strategy"
+          input: "${campaign_spec}"
+          parallel: true
+
+        - name: "seo_strategy"
+          action: "request_seo_keywords"
+          input: "${campaign_spec}"
+          parallel: true
+
+        - name: "audience_segmentation"
+          action: "get_audience_segments"
+          mcp_server: "crm-mcp"
+
+        - name: "approval_gate"
+          action: "request_human_approval"
+          input: "${aggregated_strategies}"
+          decision_type: "campaign_launch"
+
+        - name: "execute_email"
+          action: "launch_email_campaign"
+          condition: "approval_granted"
+          parallel: true
+
+        - name: "execute_social"
+          action: "schedule_social_posts"
+          condition: "approval_granted"
+          parallel: true
+
+        - name: "execute_paid_ads"
+          action: "launch_ad_campaigns"
+          condition: "approval_granted"
+          parallel: true
+
+        - name: "monitor_performance"
+          action: "start_monitoring"
+          schedule: "every_4_hours"
+          duration: "${campaign.duration}"
+
+      on_completion:
+        notification:
+          channels: ["slack:#campaigns", "email:team@agency.com"]
+        handoff_to: "analytics-agent"
+
+    - name: "real_time_optimization"
+      trigger: "schedule"
+      schedule: "0 */4 * * *"  # Every 4 hours
+      steps:
+        - action: "get_campaign_performance"
+          parameters:
+            campaign_ids: "${active_campaigns}"
+            metrics: ["ctr", "cpc", "conversions", "roas"]
+
+        - action: "analyze_performance"
+          conditions:
+            - if: "roas < target_roas * 0.8"
+              then: "flag_underperforming"
+            - if: "roas > target_roas * 1.2"
+              then: "scale_budget"
+
+        - action: "adjust_ad_budget"
+          condition: "optimization_recommended AND budget_change <= 15%"
+          autonomous: true
+
+        - action: "request_human_approval"
+          condition: "budget_change > 15% OR campaign_spend > $5000"
+
+        - action: "create_ab_test"
+          condition: "performance_plateau"
+
+      output:
+        destination: "dashboard"
+        format: "optimization_report"
+
+    - name: "weekly_campaign_review"
+      trigger: "schedule"
+      schedule: "0 14 * * FRI"  # Every Friday at 2 PM
+      steps:
+        - action: "aggregate_campaign_metrics"
+        - action: "generate_insights"
+        - action: "recommend_next_actions"
+      output:
+        destination: "email"
+        recipients: ["${campaign_stakeholders}"]
+        format: "executive_summary"
+
+  agent_interactions:
+    - agent: "content-strategist"
+      pattern: "request-response"
+      frequency: "per_campaign"
+      data_exchange:
+        - send: "campaign_brief"
+          receive: "content_recommendations"
+
+    - agent: "seo-optimizer"
+      pattern: "request-response"
+      frequency: "per_campaign"
+      data_exchange:
+        - send: "campaign_theme"
+          receive: "keyword_targets"
+
+    - agent: "analytics-agent"
+      pattern: "streaming"
+      frequency: "continuous"
+      data_exchange:
+        - send: "performance_query"
+          receive: "real_time_metrics"
+
+    - agent: "social-media-manager"
+      pattern: "command"
+      frequency: "per_campaign"
+      data_exchange:
+        - send: "social_campaign_spec"
+          receive: "execution_confirmation"
+
+  governance:
+    human_oversight:
+      required_approvals:
+        - condition: "campaign_launch"
+          approver_role: "campaign_manager"
+          timeout: "24h"
+          fallback: "escalate_to_director"
+
+        - condition: "budget_increase > 15%"
+          approver_role: "finance_manager"
+          timeout: "12h"
+
+        - condition: "campaign_pause"
+          approver_role: "client_stakeholder"
+          timeout: "2h"
+          urgency: "high"
+
+    autonomous_boundaries:
+      - action: "budget_reallocation"
+        max_change_percent: 15
+        max_absolute_change: "$1000"
+
+      - action: "ad_optimization"
+        allowed: ["bid_adjustment", "audience_refinement", "ad_scheduling"]
+        forbidden: ["creative_change", "major_targeting_change"]
+
+      - action: "campaign_pause"
+        autonomous_if: "fraud_detected OR terms_violation"
+        requires_approval_if: "performance_based"
+
+    audit_logging:
+      enabled: true
+      log_level: "comprehensive"
+      retention: "365d"  # Financial compliance
+      immutable: true
+
+  monitoring:
+    metrics:
+      - name: "campaign_launch_time"
+        baseline: "14_days"
+        target: "5_days"
+        measurement: "per_campaign"
+
+      - name: "budget_efficiency"
+        target: "roas >= 4.0"
+        measurement: "daily"
+        alert_threshold: "roas < 3.0"
+
+      - name: "cross_channel_attribution"
+        target_accuracy: ">85%"
+        measurement: "weekly"
+
+    health_checks:
+      - name: "mcp_connectivity"
+        interval: "30s"
+        critical: true
+
+      - name: "agent_coordination"
+        interval: "5m"
+        check: "last_successful_agent_call"
+
+    alerts:
+      - condition: "campaign_performance_drop > 30%"
+        severity: "high"
+        notification: ["pagerduty", "slack:#urgent"]
+        action: "auto_notify_stakeholders"
+
+      - condition: "budget_overspend"
+        severity: "critical"
+        notification: ["pagerduty", "email:finance@agency.com"]
+        action: "pause_campaign"
+
+  deployment:
+    runtime: "langgraph"
+    infrastructure:
+      compute: "kubernetes"
+      min_replicas: 2  # High availability required
+      max_replicas: 5
+      resources:
+        memory: "4Gi"
+        cpu: "2000m"
+
+    scaling:
+      metric: "active_campaigns_count"
+      target_per_replica: 10
+
+    environment:
+      production:
+        region: "us-east-1"
+        disaster_recovery: "us-west-2"
+
+  version_history:
+    - version: "1.0.0"
+      date: "2025-01-15"
+      changes: "Initial production release"
+      author: "Oracle AI CoE"

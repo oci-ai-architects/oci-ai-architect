@@ -1,0 +1,23 @@
+agent:
+  name: "defi-analyst"
+  version: "1.0.0"
+  description: "Portfolio management and yield optimization for DeFi protocols"
+  metadata:
+    industry: "web3"
+    maturity_level: "silver"
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+  tools:
+    - name: "monitor_prices"
+      type: "mcp_server"
+      mcp_server: "web3-mcp"
+    - name: "optimize_yield"
+      type: "mcp_server"
+      mcp_server: "defi-mcp"
+  mcp_servers:
+    - name: "web3-mcp"
+      endpoint: "${MCP_WEB3_ENDPOINT}"
+    - name: "defi-mcp"
+      endpoint: "${MCP_DEFI_ENDPOINT}"

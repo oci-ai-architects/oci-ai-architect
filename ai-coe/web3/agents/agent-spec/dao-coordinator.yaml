@@ -1,0 +1,23 @@
+agent:
+  name: "dao-coordinator"
+  version: "1.0.0"
+  description: "Governance automation and proposal management for DAOs"
+  metadata:
+    industry: "web3"
+    maturity_level: "gold"
+  config:
+    model:
+      provider: "anthropic"
+      name: "claude-sonnet-4-5"
+  tools:
+    - name: "manage_proposals"
+      type: "mcp_server"
+      mcp_server: "dao-mcp"
+    - name: "track_voting"
+      type: "mcp_server"
+      mcp_server: "governance-mcp"
+  mcp_servers:
+    - name: "dao-mcp"
+      endpoint: "${MCP_DAO_ENDPOINT}"
+    - name: "governance-mcp"
+      endpoint: "${MCP_GOV_ENDPOINT}"
